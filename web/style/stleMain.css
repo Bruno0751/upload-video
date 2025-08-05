@@ -1,0 +1,33 @@
+html, body {
+    width: 100%;
+}
+body {
+    margin: 0;
+    padding: 0;
+    background: #3d7878;
+    background: linear-gradient(90deg,rgba(61, 120, 120, 1) 5%, rgba(91, 115, 199, 1) 59%, rgba(176, 145, 99, 1) 95%);
+}
+header {
+    position: static;
+    float: left;
+}
+section {
+  width: 80%;
+  height: auto;
+  background-color: #0000ff4a;
+  border-radius: 21px;
+  margin: 100px auto;
+  padding: 20px;
+  text-align: center;
+}
+footer {
+    width: 100%;
+    background-color: #353535;
+    position: fixed;
+    text-align: center;
+    z-index: 1000;
+    padding: 10px 0;
+    bottom: 0;
+    left: 0;
+    color: #ffffff;
+}
