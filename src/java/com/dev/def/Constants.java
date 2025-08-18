@@ -1,4 +1,4 @@
-package def;
+package com.dev.def;
 
 /**
  *

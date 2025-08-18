@@ -1,4 +1,4 @@
-package documentBson;
+package com.dev.documentBson;
 
 import org.bson.Document;
 

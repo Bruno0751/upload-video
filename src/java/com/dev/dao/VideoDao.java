@@ -1,4 +1,4 @@
-package dao;
+package com.dev.dao;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -10,17 +10,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
-import model.IdVideo;
-import model.Video;
+import com.dev.model.IdVideo;
+import com.dev.model.Video;
 import org.bson.Document;
-import persistence.ConexaoMongoDB;
+import com.dev.persistence.ConexaoMongoDB;
 
 /**
  *
@@ -32,6 +30,7 @@ public final class VideoDao {
 
     private final static String SELECT = "SELECT * FROM db_upload_video.video";
     private final static String INSERT = "INSERT INTO db_upload_video.video (content, id_video)";
+    private final static String DELETE = "FELETE FROM db_upload_video.video";
     private final static MongoClientURI URL_MONGODB = new MongoClientURI(ConexaoMongoDB.URL_MONGODB);
 
     public static ArrayList<Video> find(Connection conexaoMysql) throws SQLException {
@@ -141,6 +140,16 @@ public final class VideoDao {
         VideoDao.saveMySQL(conexaoMysql, video, idVideoAux);
         return idVideoAux;
     }
+    
+    public static void delete(Connection conecxaoMySQL, long idVideo) throws SQLException {
+        try (PreparedStatement pst = conecxaoMySQL.prepareStatement(VideoDao.DELETE + "WHERE id_video = ?;")) {
+            pst.setLong(1, idVideo);
+            pst.execute();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new SQLException("Erro ao deletar video");
+        }
+    }
 
     public static File salvarVideoTemporario(Video video) throws IOException {
         File pastaDestino = new File("D:/file-temp");
@@ -156,7 +165,7 @@ public final class VideoDao {
         return tempFile;
     }
 
-    private static void saveMySQL(Connection conexaoMysql, Video video, long idVideoAux) throws SQLException {
+    private static void saveMySQL(Connection conexaoMysql, Video video, long idVideoAux) throws SQLException, IOException {
         ResultSet rs = null;
         byte[] conteudo = video.getContentBytes();
         if (conteudo == null || conteudo.length == 0) {
@@ -165,7 +174,7 @@ public final class VideoDao {
         ByteArrayInputStream bais = new ByteArrayInputStream(conteudo);
 
         try (PreparedStatement pst = conexaoMysql.prepareStatement(VideoDao.INSERT + " VALUES(?, ?);")) {
-            
+
             pst.setBinaryStream(1, bais, conteudo.length);
             pst.setLong(2, idVideoAux);
             pst.executeUpdate();
@@ -180,19 +189,13 @@ public final class VideoDao {
                     }
                 }
                 if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (Exception ignored) {
-                    }
+                    rs.close();
                 }
             }
             throw new SQLException("Error save movie");
         } finally {
             if (bais != null) {
-                try {
-                    bais.close();
-                } catch (Exception ignored) {
-                }
+                bais.close();
             }
         }
     }
@@ -202,7 +205,7 @@ public final class VideoDao {
 
             MongoDatabase database = mongoClient.getDatabase(ConexaoMongoDB.DB);
             MongoCollection<Document> collection = database.getCollection("video");
-            documentBson.Video videBson = new documentBson.Video(video.getContentBytes().toString());
+            com.dev.documentBson.Video videBson = new com.dev.documentBson.Video(video.getContentBytes().toString());
 
             collection.insertOne(videBson.getDocumento());
         } catch (Exception e) {
@@ -210,4 +213,6 @@ public final class VideoDao {
             throw new Exception("Erro ao inserir documentos");
         }
     }
+
+    
 }

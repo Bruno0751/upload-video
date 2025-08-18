@@ -13,12 +13,11 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/D:/projetos/java/upload-video/web/js/index.js</file>
-            <file>file:/D:/projetos/java/upload-video/web/index.html</file>
-            <file>file:/D:/projetos/java/upload-video/src/java/controller/ServletVideo.java</file>
-            <file>file:/D:/projetos/java/upload-video/src/java/dao/VideoDao.java</file>
-            <file>file:/D:/projetos/java/upload-video/src/java/service/IdVideoService.java</file>
-            <file>file:/D:/projetos/java/upload-video/src/java/dao/IdVideoDao.java</file>
-            <file>file:/D:/projetos/java/upload-video/web/style/stleMain.css</file>
+            <file>file:/D:/projetos/java/upload-video/src/java/com/dev/controller/ServletVideo.java</file>
+            <file>file:/D:/projetos/java/upload-video/src/java/com/dev/service/VideoService.java</file>
+            <file>file:/D:/projetos/java/upload-video/src/java/com/dev/dao/VideoDao.java</file>
+            <file>file:/D:/projetos/java/upload-video/src/java/com/dev/service/IdVideoService.java</file>
+            <file>file:/D:/projetos/java/upload-video/src/java/com/dev/dao/IdVideoDao.java</file>
         </group>
     </open-files>
 </project-private>

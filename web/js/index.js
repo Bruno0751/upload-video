@@ -1,5 +1,5 @@
-function findAllVideos() {
-    fetch(`ServletVideo?opcao=findAllId`, {
+async function findAllVideos() {
+    fetch(`ServletVideo?opcao=find`, {
         method: "GET"
     })
             .then(response => {
@@ -31,12 +31,12 @@ function findAllVideos() {
                                 <tbody>\n";
                         for (let i = 0; i < data.record.length; i++) {
                             tableHTML += "<tr>\n\
-                                        <td>"+data.record[i].idVideo+"</td>\n\
-                                        <td>"+data.record[i].name+"</td>\n\
-                                        <td>"+data.record[i].dateTime+"</td>\n\
-                                        <td>"+data.record[i].length+"</td>\n\
-                                        <td><button type='button' onClick='deletar(" + data.record[i].idVideo + ")' disabled>Deletar</button></td>\n\
-                                        <td><button type='button' onClick='loadVideo(" + data.record[i].idVideo + ")'>Play</button></td>\n\
+                                        <td>" + data.record[i].idVideo + "</td>\n\
+                                        <td>" + data.record[i].name + "</td>\n\
+                                        <td>" + data.record[i].dateTime + "</td>\n\
+                                        <td>" + data.record[i].length + "</td>\n\
+                                        <td><button type='button' onClick='deletar(" + data.record[i].idVideo + ")' class='btn btn-danger'disabled>Deletar</button></td>\n\
+                                        <td><button type='button' onClick='loadVideo(" + data.record[i].idVideo + ")' class='btn btn-primary'>Play</button></td>\n\
                                     </tr>\n";
                         }
                         tableHTML += "</tbody>\n\
@@ -54,7 +54,7 @@ function findAllVideos() {
                     } else {
                         tableHTML = '<h2>Lista Vazia<h2>';
                     }
-                    div.innerHTML = tableHTML
+                    div.innerHTML = tableHTML;
                 } else {
                     alert('Hove algum erro');
                 }
@@ -66,13 +66,7 @@ function findAllVideos() {
 }
 
 function loadVideo(id) {
-    console.log(id);
-    //const id = document.getElementById("inputId").value;
-    //if (id === '') {
-    //    alert('id obrigatório');
-    //    return;
-    //}
-    fetch(`ServletVideo?opcao=stream&id=${id}`, {
+    fetch(`ServletVideo?opcao=streamVideo&id=${id}`, {
         method: "GET"
     })
             .then(response => {
@@ -103,4 +97,30 @@ function loadVideo(id) {
                 console.error("Erro:", erro);
                 alert(erro);
             });
+}
+function deletar(id) {
+    $.ajax({
+        url: `ServletVideo?opcao=delete&id=${id}`,
+        type: "DELETE",
+        success: function (data, textStatus, xhr) {
+            const contentType = xhr.getResponseHeader("Content-Type");
+
+            if (contentType && contentType.includes("application/json")) {
+                if (data.status === "success") {
+                    alert("Vídeo deletado com sucesso!");
+                } else {
+                    alert("Erro: " + data.msg);
+                }
+            } else {
+                alert("Resposta inesperada do servidor.");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Erro ao deletar vídeo:", error);
+            alert("Erro ao deletar vídeo.");
+        },
+        complete: function () {
+            console.log("Requisição DELETE finalizada.");
+        }
+    });
 }

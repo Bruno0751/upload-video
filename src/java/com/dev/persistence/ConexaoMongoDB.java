@@ -1,4 +1,4 @@
-package persistence;
+package com.dev.persistence;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;

@@ -1,6 +1,6 @@
-package persistence;
+package com.dev.persistence;
 
-import def.Constants;
+import com.dev.def.Constants;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;

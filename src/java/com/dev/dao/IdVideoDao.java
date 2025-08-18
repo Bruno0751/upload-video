@@ -1,4 +1,4 @@
-package dao;
+package com.dev.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import model.IdVideo;
+import com.dev.model.IdVideo;
 
 /**
  *
@@ -18,6 +18,7 @@ public final class IdVideoDao {
 
     private final static String SELECT = "SELECT * FROM db_upload_video.id_video";
     private final static String INSERT = "INSERT INTO db_upload_video.id_video";
+    private final static String DELETE = "DELETTE FROM db_upload_video.id_video";
 
     public static long insert(Connection conexaoMysql, IdVideo idVideo) throws SQLException {
         ResultSet rs = null;
@@ -56,13 +57,13 @@ public final class IdVideoDao {
         return idVideo.getIdVideo();
     }
 
-    public static ArrayList<IdVideo> findAll(Connection conexaoMysql) throws SQLException {
+    public static ArrayList<IdVideo> find(Connection conexaoMysql) throws SQLException {
         ResultSet rs = null;
         ArrayList lista;
         try (PreparedStatement pst = conexaoMysql.prepareStatement(IdVideoDao.SELECT + ";")) {
             rs = pst.executeQuery();
             lista = new ArrayList();
-            if (rs.next()) {
+            while (rs.next()) {
                 IdVideo IdVideo = new IdVideo();
                 IdVideo.setIdVideo(rs.getInt("id_video"));
                 IdVideo.setName(rs.getString("name"));
@@ -75,13 +76,19 @@ public final class IdVideoDao {
             throw new SQLException("Error retur list video");
         } finally {
             if (rs != null) {
-                try {
-                    rs.close();
-                } catch (Exception ignored) {
-                }
+                rs.close();
             }
         }
         return lista;
     }
 
+    public static void delete(Connection conecxaoMySQL, long idVideo) throws SQLException {
+        try (PreparedStatement pst = conecxaoMySQL.prepareStatement(IdVideoDao.DELETE + "WHERE id_video = ?;")) {
+            pst.setLong(1, idVideo);
+            pst.execute();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new SQLException("Erro ao deletar id video");
+        }
+    }
 }

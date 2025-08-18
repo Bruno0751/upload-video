@@ -4,24 +4,41 @@ html, body {
 body {
     margin: 0;
     padding: 0;
-    background: #3d7878;
-    background: linear-gradient(90deg,rgba(61, 120, 120, 1) 5%, rgba(91, 115, 199, 1) 59%, rgba(176, 145, 99, 1) 95%);
+    background: #000000;
+    background: linear-gradient(90deg,rgba(0, 0, 0, 1) 1%, rgba(46, 19, 19, 1) 70%, rgba(77, 15, 15, 1) 100%);
 }
 header {
-    position: static;
-    float: left;
+    width: 100%;
+    background-color: transparent;
+    max-width: 100% !important;
+}
+#icon{
+    color: #ffffff;
+    width: 11%;
+    height: 112px;
 }
 section {
-  width: 80%;
-  height: auto;
-  background-color: #0000ff4a;
-  border-radius: 21px;
-  margin: 100px auto;
-  padding: 20px;
-  text-align: center;
+    height: auto;
+    background-color: #ffffff;
+    border-radius: 21px;
+    margin: 100px auto;
+    padding: 20px;
+    text-align: center;
+}
+nav {
+    background-color: #35353500;
+}
+.navDF {
+    color: #ffffff;
+    font-size: 4vh;
+    font-style: italic
+}
+.navDF:hover {
+    zoom: 2;
+    color: green;
+    font-weight: bold;
 }
 footer {
-    width: 100%;
     background-color: #353535;
     position: fixed;
     text-align: center;
@@ -30,4 +47,13 @@ footer {
     bottom: 0;
     left: 0;
     color: #ffffff;
+    margin: 0;
+    max-width: 100% !important;
+}
+input[type="file"] {
+  font-size: 16px;
+  color: red;
+}
+input[type="file"]::file-selector-button:hover {
+  background-color: #a60000;
 }
