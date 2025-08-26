@@ -2,58 +2,98 @@ html, body {
     width: 100%;
 }
 body {
-    margin: 0;
-    padding: 0;
+    margin-bottom: 0;
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding-bottom: 0;
+    padding-top: 3px;
+    padding-left: 1px;
+    padding-right: 1px;
     background: #000000;
     background: linear-gradient(90deg,rgba(0, 0, 0, 1) 1%, rgba(46, 19, 19, 1) 70%, rgba(77, 15, 15, 1) 100%);
 }
+ol ul {
+    list-style-type: none;
+}
+a {
+    text-decoration: underline;
+}
+img {
+    object-fit: cover;
+    aspect-ratio: 16 / 9;
+}
+button {
+    outline: 0 solid #4caf50;
+    outline-offset: 4px;
+}
 header {
-    width: 100%;
+    min-width: 100%;
     background-color: transparent;
-    max-width: 100% !important;
+    padding: 0 !important;
+    top: 0;
+    position: relative;
 }
 #icon{
     color: #ffffff;
-    width: 11%;
+    width: 9%;
     height: 112px;
 }
-section {
-    height: auto;
-    background-color: #ffffff;
-    border-radius: 21px;
-    margin: 100px auto;
-    padding: 20px;
-    text-align: center;
-}
 nav {
-    background-color: #35353500;
+     min-width: 88%;
+    background-color: transparent;
+    padding: 0 !important;
+    /*background-color: #35353500;*/
+    margin-bottom: 30px;
 }
-.navDF {
+.divNav {
+    margin-left: 0.1%;
+}
+.anchorNav{
     color: #ffffff;
     font-size: 4vh;
-    font-style: italic
+    font-style: italic;
+    text-align: center;
 }
-.navDF:hover {
+.anchorNav:hover {
     zoom: 2;
     color: green;
     font-weight: bold;
 }
-footer {
-    background-color: #353535;
-    position: fixed;
+section {
+    min-width: 88%;
+    background-color: #7a6c6c;
+    border-radius: 21px;
+    padding-top: 0;
+    padding-bottom: 20px;
     text-align: center;
-    z-index: 1000;
-    padding: 10px 0;
-    bottom: 0;
-    left: 0;
+}
+#videoPlayer {
+    width: 100%;
+    height: auto;
+}
+footer {
+    min-width: 100%;
+    background-color: #353535;
+    padding: 0 !important;
     color: #ffffff;
-    margin: 0;
-    max-width: 100% !important;
+    text-align: center;
+    bottom: 0;
+    position: fixed;
+
+    /*background-color: #353535;*/
+    
+    /*z-index: 1000;*/
+    /*padding: 10px 0;*/
+    
+    /*left: 0;*/
+    /*margin: 0;*/
+    /*max-width: 100% !important;*/
 }
 input[type="file"] {
-  font-size: 16px;
-  color: red;
+    font-size: 16px;
+    color: red;
 }
 input[type="file"]::file-selector-button:hover {
-  background-color: #a60000;
+    background-color: #a60000;
 }

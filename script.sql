@@ -3,7 +3,7 @@ create database db_upload_video CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci
 create table db_upload_video.id_video (
 	id_video INT auto_increment not null,
 	name varchar(60) not null,
-	m timestamp default current_timestamp on update current_timestamp not null,
+	data_time timestamp default current_timestamp on update current_timestamp not null,
 	length INT not null,
 	CONSTRAINT pk_id_video PRIMARY KEY(id_video)
 );
