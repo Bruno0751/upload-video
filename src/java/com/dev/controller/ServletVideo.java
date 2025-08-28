@@ -2,19 +2,11 @@ package com.dev.controller;
 
 import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
-import com.dev.dao.IdVideoDao;
 import com.dev.dao.VideoDao;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -30,10 +22,10 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.Part;
 import com.dev.model.IdVideo;
 import com.dev.model.Video;
-import org.bson.Document;
-import com.dev.persistence.ConexaoMongoDB;
-import com.dev.service.IdVideoService;
 import com.dev.service.VideoService;
+import com.dev.service.impl.IdVideoServiceImpl;
+import com.dev.service.IdVideoService;
+import com.dev.service.impl.VideoServiceImpl;
 
 /**
  *
@@ -42,15 +34,15 @@ import com.dev.service.VideoService;
  * @version 1
  */
 @WebServlet(name = "ServletVideo", urlPatterns = {"/ServletVideo"})
-@MultipartConfig(maxFileSize = 4L * 1024L * 1024L)
+@MultipartConfig(maxFileSize = 4L * 1024L * 1024L * 1024L)
 public class ServletVideo extends HttpServlet {
 
     private IdVideoService idVideoService;
     private VideoService videoService;
 
     public ServletVideo() {
-        idVideoService = new IdVideoService();
-        videoService = new VideoService();
+        idVideoService = new IdVideoServiceImpl();
+        videoService = new VideoServiceImpl();
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -77,7 +69,7 @@ public class ServletVideo extends HttpServlet {
                         break;
                     case "find":
                         isBinaryResponse = false;
-                        saida = this.find(response, conecxaoMySQL, conexaoMongoDB, saida);
+                        saida = this.find(response, conecxaoMySQL, saida);
                         break;
 //                    case "findById":
 //                        this.findById(conecxaoMySQL, request, response, saida, isBinaryResponse);
@@ -163,7 +155,8 @@ public class ServletVideo extends HttpServlet {
             throw new RuntimeException("id do video nao informado");
         }
         long idVideo = Long.parseLong(request.getParameter("id"));
-        videoService.delete(conecxaoMySQL, idVideo);
+        System.out.println(idVideo);
+        idVideoService.delete(conecxaoMySQL, idVideo);
     }
 
     private void insert(Connection conecxaoMySQL, MongoCollection<org.bson.Document> conexaoMongoDB, HttpServletRequest request, HttpServletResponse response, Map saida) throws IOException, ServletException, SQLException, Exception {
@@ -172,7 +165,7 @@ public class ServletVideo extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             throw new RuntimeException("Nenhum vídeo enviado.");
         }
-
+        
         InputStream conteudo = request.getPart("video").getInputStream();
         byte[] videoBytes = conteudo.readAllBytes();
         Video video = new Video(videoBytes);
@@ -185,8 +178,8 @@ public class ServletVideo extends HttpServlet {
         VideoDao.insert(conecxaoMySQL, video, idVideo);
     }
 
-    private Map find(HttpServletResponse response, Connection conecxaoMySQL, MongoCollection<Document> conexaoMongoDB, Map saida) throws SQLException {
-        ArrayList<IdVideo> lista = idVideoService.find(conecxaoMySQL, conexaoMongoDB);
+    private Map find(HttpServletResponse response, Connection conecxaoMySQL, Map saida) throws SQLException {
+        ArrayList<IdVideo> lista = idVideoService.find(conecxaoMySQL);
         saida.put("record", lista);
         saida.put("total", lista.size());
         return saida;
@@ -210,6 +203,17 @@ public class ServletVideo extends HttpServlet {
 //        tempFile.delete();;
 //    }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+//    @Override
+//    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//        try {
+//            processRequest(request, response);
+//        } catch (SQLException ex) {
+//            System.getLogger(ServletVideo.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+//        } catch (Exception ex) {
+//            System.getLogger(ServletVideo.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+//        }
+//    }
+    
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -219,8 +223,7 @@ public class ServletVideo extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             processRequest(request, response);
         } catch (SQLException ex) {
@@ -239,8 +242,7 @@ public class ServletVideo extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             processRequest(request, response);
         } catch (SQLException ex) {

@@ -1,6 +1,5 @@
 package com.dev.service;
 
-import com.dev.dao.VideoDao;
 import com.dev.model.Video;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -11,16 +10,17 @@ import java.sql.SQLException;
  * @since 06/07/2018
  * @version 1
  */
-public class VideoService {
+public interface VideoService {
 
-    public void delete(Connection conecxaoMySQL, long idVideo) throws SQLException {
-        VideoDao.delete(conecxaoMySQL, idVideo);
-        IdVideoService.delete(conecxaoMySQL, idVideo);
-    }
+    @Override
+    public String toString();
 
-    public Video streamVideo(Connection conecxaoMySQL, long idVideo) throws SQLException {
-        Video video = VideoDao.findById(conecxaoMySQL, idVideo);
-        return video;
-    }
+    @Override
+    public boolean equals(Object obj);
+
+    @Override
+    public int hashCode();
+    
+    Video streamVideo(Connection conecxaoMySQL, long idVideo) throws SQLException;
     
 }

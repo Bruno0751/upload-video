@@ -35,7 +35,7 @@ async function findAll() {
                                         <td>" + data.record[i].name + "</td>\n\
                                         <td>" + data.record[i].dateTime + "</td>\n\
                                         <td>" + data.record[i].length + "</td>\n\
-                                        <td><button type='button' onClick='deletar(" + data.record[i].idVideo + ")' class='btn btn-danger'disabled>Deletar</button></td>\n\
+                                        <td><button type='button' onClick='deletar(" + data.record[i].idVideo + ")' class='btn btn-danger'>Deletar</button></td>\n\
                                         <td><button type='submit' id='openPopup' onClick='loadVideo(" + data.record[i].idVideo + ")' class='btn btn-primary'>Play</button></td>\n\
                                     </tr>\n";
                         }

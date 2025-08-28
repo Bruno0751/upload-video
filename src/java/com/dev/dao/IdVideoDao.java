@@ -18,7 +18,7 @@ public final class IdVideoDao {
 
     private final static String SELECT = "SELECT * FROM db_upload_video.id_video";
     private final static String INSERT = "INSERT INTO db_upload_video.id_video";
-    private final static String DELETE = "DELETTE FROM db_upload_video.id_video";
+    private final static String DELETE = "DELETE FROM db_upload_video.id_video";
 
     public static long insert(Connection conexaoMysql, IdVideo idVideo) throws SQLException {
         ResultSet rs = null;
@@ -36,10 +36,7 @@ public final class IdVideoDao {
             };
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            if (e.getMessage().contains("Duplicate entry")) {
-                throw new SQLException("Error Chave duplicada");
-            }
-            throw new SQLException("Error save movie id");
+            throw new SQLException("Error insert IdVideo");
         } finally {
             if (pst != null) {
                 try {
@@ -73,7 +70,7 @@ public final class IdVideoDao {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            throw new SQLException("Error retur list video");
+            throw new SQLException("Error find IdVideo");
         } finally {
             if (rs != null) {
                 rs.close();
@@ -83,12 +80,37 @@ public final class IdVideoDao {
     }
 
     public static void delete(Connection conecxaoMySQL, long idVideo) throws SQLException {
-        try (PreparedStatement pst = conecxaoMySQL.prepareStatement(IdVideoDao.DELETE + "WHERE id_video = ?;")) {
+        try (PreparedStatement pst = conecxaoMySQL.prepareStatement(IdVideoDao.DELETE + " WHERE id_video = ?;")) {
             pst.setLong(1, idVideo);
             pst.execute();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            throw new SQLException("Erro ao deletar id video");
+            throw new SQLException("Erro delete IdVideo");
         }
+    }
+
+    public static ArrayList<IdVideo> findBy(Connection conecxaoMySQL, String query) throws SQLException {
+        ResultSet rs = null;
+        try (Statement st = conecxaoMySQL.createStatement()) {
+            rs = st.executeQuery(IdVideoDao.SELECT + " " + query + ";");
+            ArrayList<IdVideo> lista = new ArrayList<>();
+            while (rs.next()) {
+                IdVideo idVideo = new IdVideo();
+
+//                cliente.setIdCliente(rs.getLong("id_cliente"));
+//                cliente.setNome(rs.getString("nome"));
+//                cliente.setCpf(rs.getString("cpf"));
+//                cliente.setIdade(rs.getInt("idade"));
+//                lista.add(cliente);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new SQLException("Error findBy IdVideo");
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+        }
+        return null;
     }
 }

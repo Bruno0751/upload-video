@@ -1,28 +1,29 @@
 package com.dev.service;
 
-import com.mongodb.client.MongoCollection;
-import com.dev.dao.IdVideoDao;
+import com.dev.model.IdVideo;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import com.dev.model.IdVideo;
-import org.bson.Document;
 
 /**
  *
  * @author Bruno Gressler da Silveira
- * @since 06/07/2018
+ * @since 27/08/2018
  * @version 1
  */
-public class IdVideoService {
+public interface IdVideoService {
 
-    static void delete(Connection conecxaoMySQL, long idVideo) throws SQLException {
-        IdVideoDao.delete(conecxaoMySQL, idVideo);
-    }
+    @Override
+    public String toString();
 
-    public ArrayList<IdVideo> find(Connection conecxaoMySQL, MongoCollection<Document> conexaoMongoDB) throws SQLException {
-        ArrayList<IdVideo> lista = IdVideoDao.find(conecxaoMySQL);
-        return lista;
-    }
+    @Override
+    public boolean equals(Object obj);
+
+    @Override
+    public int hashCode();
+
+    ArrayList<IdVideo> find(Connection conecxaoMySQL) throws SQLException;
     
+    void delete(Connection conecxaoMySQL, long idVideo) throws SQLException;
+
 }

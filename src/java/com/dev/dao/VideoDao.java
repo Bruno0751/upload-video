@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import com.dev.model.IdVideo;
 import com.dev.model.Video;
-import org.bson.Document;
 import com.dev.persistence.ConexaoMongoDB;
 
 /**
@@ -30,8 +29,8 @@ public final class VideoDao {
 
     private final static String SELECT = "SELECT * FROM db_upload_video.video";
     private final static String INSERT = "INSERT INTO db_upload_video.video (content, id_video)";
-    private final static String DELETE = "FELETE FROM db_upload_video.video";
-    private final static MongoClientURI URL_MONGODB = new MongoClientURI(ConexaoMongoDB.URL_MONGODB);
+    private final static String DELETE = "DELETE FROM db_upload_video.video";
+//    private final static MongoClientURI URL_MONGODB = new MongoClientURI(ConexaoMongoDB.URL_MONGODB);
 
     public static ArrayList<Video> find(Connection conexaoMysql) throws SQLException {
         ResultSet rs = null;
@@ -57,7 +56,7 @@ public final class VideoDao {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            throw new SQLException("Error retur list video");
+            throw new SQLException("Error find Video");
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -109,7 +108,7 @@ public final class VideoDao {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            throw new SQLException("Error retur video id");
+            throw new SQLException("Error findById Video");
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -142,12 +141,12 @@ public final class VideoDao {
     }
     
     public static void delete(Connection conecxaoMySQL, long idVideo) throws SQLException {
-        try (PreparedStatement pst = conecxaoMySQL.prepareStatement(VideoDao.DELETE + "WHERE id_video = ?;")) {
+        try (PreparedStatement pst = conecxaoMySQL.prepareStatement(VideoDao.DELETE + " WHERE id_video = ?;")) {
             pst.setLong(1, idVideo);
             pst.execute();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            throw new SQLException("Erro ao deletar video");
+            throw new SQLException("Error ao deletar video");
         }
     }
 
@@ -200,19 +199,17 @@ public final class VideoDao {
         }
     }
 
-    private static void saveMongoDB(MongoCollection<Document> conexaoMongoDB, Video video) throws Exception {
-        try (MongoClient mongoClient = new MongoClient(URL_MONGODB)) {
-
-            MongoDatabase database = mongoClient.getDatabase(ConexaoMongoDB.DB);
-            MongoCollection<Document> collection = database.getCollection("video");
-            com.dev.documentBson.Video videBson = new com.dev.documentBson.Video(video.getContentBytes().toString());
-
-            collection.insertOne(videBson.getDocumento());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new Exception("Erro ao inserir documentos");
-        }
-    }
-
-    
+//    private static void saveMongoDB(MongoCollection<Document> conexaoMongoDB, Video video) throws Exception {
+//        try (MongoClient mongoClient = new MongoClient(URL_MONGODB)) {
+//
+//            MongoDatabase database = mongoClient.getDatabase(ConexaoMongoDB.DB);
+//            MongoCollection<Document> collection = database.getCollection("video");
+//            com.dev.documentBson.Video videBson = new com.dev.documentBson.Video(video.getContentBytes().toString());
+//
+//            collection.insertOne(videBson.getDocumento());
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//            throw new Exception("Erro ao inserir documentos");
+//        }
+//    }    
 }

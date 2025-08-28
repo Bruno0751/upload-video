@@ -3,7 +3,6 @@ function loadVideo(id) {
         method: "GET"
     })
             .then(response => {
-                console.log(response.headers.get("Content-Type"));
                 if (response.headers.get("Content-Type").includes('application/json;charset=UTF-8')) {
                     return response.json().then(json => {
                         if (json.status === 'error') {
@@ -27,7 +26,7 @@ function loadVideo(id) {
                 video.play();
             })
             .catch(erro => {
-                console.error("Erro:", erro);
+                console.error("Error:", error);
                 alert(erro);
             });
 }
@@ -45,15 +44,14 @@ function deletar(id) {
                     alert("Erro: " + data.msg);
                 }
             } else {
-                alert("Resposta inesperada do servidor.");
+                alert("Response not found");
             }
         },
         error: function (xhr, status, error) {
-            console.error("Erro ao deletar vídeo:", error);
-            alert("Erro ao deletar vídeo.");
+            console.error("Error:", error);
+            alert("Error");
         },
         complete: function () {
-            console.log("Requisição DELETE finalizada.");
         }
     });
 }
