@@ -203,16 +203,17 @@ public class ServletVideo extends HttpServlet {
 //        tempFile.delete();;
 //    }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-//    @Override
-//    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        try {
-//            processRequest(request, response);
-//        } catch (SQLException ex) {
-//            System.getLogger(ServletVideo.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-//        } catch (Exception ex) {
-//            System.getLogger(ServletVideo.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-//        }
-//    }
+    
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            System.getLogger(ServletVideo.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        } catch (Exception ex) {
+            System.getLogger(ServletVideo.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
     
     /**
      * Handles the HTTP <code>GET</code> method.

@@ -40,7 +40,7 @@ header {
     height: 112px;
 }
 nav {
-     min-width: 88%;
+    min-width: 88%;
     background-color: transparent;
     padding: 0 !important;
     /*background-color: #35353500;*/
@@ -60,6 +60,37 @@ nav {
     color: green;
     font-weight: bold;
 }
+article {
+    float: left;
+    background-color: transparent;
+    color: #ffffff;
+}
+article, aside {
+    height: 41vh;
+    max-width: 6%  !important;
+}
+aside {
+    float: left;
+    background-color: transparent;
+    color: #ffffff;
+}
+iframe {
+    width: auto;
+}
+#q {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    transition: box-shadow .12s, border-color .12s;
+}
+#q:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74,144,226,0.12);
+}
 section {
     min-width: 88%;
     background-color: #7a6c6c;
@@ -67,6 +98,7 @@ section {
     padding-top: 0;
     padding-bottom: 20px;
     text-align: center;
+    float: left;
 }
 #videoPlayer {
     width: 100%;
@@ -82,10 +114,10 @@ footer {
     position: fixed;
 
     /*background-color: #353535;*/
-    
+
     /*z-index: 1000;*/
     /*padding: 10px 0;*/
-    
+
     /*left: 0;*/
     /*margin: 0;*/
     /*max-width: 100% !important;*/

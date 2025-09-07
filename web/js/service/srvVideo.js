@@ -17,7 +17,8 @@ async function findAll() {
                     let div = window.document.getElementById("table");
                     let tableHTML = null;
                     if (data.record.length > 0) {
-                        tableHTML = "<table class='table'>\n\
+                        tableHTML = "\
+                            <table class='table'>\n\
                                     <thead>\n\
                                         <tr>\n\
                                             <th scope='col'>Id</th>\n\
@@ -35,7 +36,7 @@ async function findAll() {
                                         <td>" + data.record[i].name + "</td>\n\
                                         <td>" + data.record[i].dateTime + "</td>\n\
                                         <td>" + data.record[i].length + "</td>\n\
-                                        <td><button type='button' onClick='deletar(" + data.record[i].idVideo + ")' class='btn btn-danger'>Deletar</button></td>\n\
+                                        <td><button type='button' onClick='delet(" + data.record[i].idVideo + ")' class='btn btn-danger'>Deletar</button></td>\n\
                                         <td><button type='submit' id='openPopup' onClick='loadVideo(" + data.record[i].idVideo + ")' class='btn btn-primary'>Play</button></td>\n\
                                     </tr>\n";
                         }
