@@ -13,4 +13,6 @@ public class Constants {
     public static final String USER_MYSQL = "root";
     public static final String PASSWORD_MYSQL = "";
     
+    public static final String URL_MONGODB = "mongodb://127.0.0.1:27017";
+    
 }

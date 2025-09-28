@@ -1,9 +1,5 @@
 package com.dev.dao;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,7 +13,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import com.dev.model.IdVideo;
 import com.dev.model.Video;
-import com.dev.persistence.ConexaoMongoDB;
 
 /**
  *
@@ -134,7 +129,7 @@ public final class VideoDao {
         return video;
     }
 
-    public static long insert(Connection conexaoMysql, Video video, IdVideo idVideo) throws SQLException, Exception {
+    public static long insert(Connection conexaoMysql, Video video, IdVideo idVideo) throws SQLException, IOException{
         long idVideoAux = IdVideoDao.insert(conexaoMysql, idVideo);
         VideoDao.saveMySQL(conexaoMysql, video, idVideoAux);
         return idVideoAux;
@@ -198,18 +193,4 @@ public final class VideoDao {
             }
         }
     }
-
-//    private static void saveMongoDB(MongoCollection<Document> conexaoMongoDB, Video video) throws Exception {
-//        try (MongoClient mongoClient = new MongoClient(URL_MONGODB)) {
-//
-//            MongoDatabase database = mongoClient.getDatabase(ConexaoMongoDB.DB);
-//            MongoCollection<Document> collection = database.getCollection("video");
-//            com.dev.documentBson.Video videBson = new com.dev.documentBson.Video(video.getContentBytes().toString());
-//
-//            collection.insertOne(videBson.getDocumento());
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//            throw new Exception("Erro ao inserir documentos");
-//        }
-//    }    
 }

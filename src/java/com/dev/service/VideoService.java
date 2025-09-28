@@ -1,8 +1,12 @@
 package com.dev.service;
 
+import com.dev.documentBson.IdVideoBson;
+import com.dev.model.IdVideo;
 import com.dev.model.Video;
+import com.mongodb.client.MongoDatabase;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  *
@@ -22,5 +26,10 @@ public interface VideoService {
     public int hashCode();
     
     Video streamVideo(Connection conecxaoMySQL, long idVideo) throws SQLException;
+    
+    ArrayList<IdVideo> find(Connection conecxaoMySQL) throws SQLException;
+    
+    void delete(Connection conecxaoMySQL, long idVideo) throws SQLException;
+
     
 }
