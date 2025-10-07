@@ -13,7 +13,6 @@ async function findAll() {
                 throw new Error("Tipo de resposta inesperado:");
             })
             .then(data => {
-                console.log(data)
                 if (data.status === 'success') {
                     let div = window.document.getElementById("table");
                     let tableHTML = null;

@@ -2,10 +2,9 @@ package com.dev.controller;
 
 import com.dev.dao.VideoDao;
 import com.google.gson.Gson;
-import com.mongodb.client.MongoCollection;
-import com.dev.documentBson.IdVideoBson;
 import com.dev.documentBson.SequenceGenerator;
 import com.dev.documentBson.VideoBson;
+import com.dev.documentBson.VideoBson2;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,9 +27,6 @@ import com.dev.model.Video;
 import com.dev.persistence.ConexaoMongoDB;
 import com.dev.service.MogodbVideoService;
 import com.dev.service.MogodbVideoServiceImpl;
-import com.dev.service.VideoService;
-import com.dev.service.impl.VideoServiceImpl;
-import org.bson.Document;
 
 /**
  *
@@ -39,14 +35,11 @@ import org.bson.Document;
  * @version 1
  */
 @WebServlet(name = "ServletVideo", urlPatterns = {"/ServletVideo"})
-@MultipartConfig(maxFileSize = 4L * 1024L * 1024L * 1024L)
 public class ServletVideo extends HttpServlet {
 
-    private VideoService videoService;
     private MogodbVideoService mogodbVideoService;
 
     public ServletVideo() {
-        videoService = new VideoServiceImpl();
         mogodbVideoService = new MogodbVideoServiceImpl();
     }
 
@@ -70,24 +63,20 @@ public class ServletVideo extends HttpServlet {
                 switch (opcao) {
                     case "insert":
                         isBinaryResponse = false;
-//                        this.insert(conecxaoMySQL, request, response);
                          this.insert(conexaoMongoDB, request, response);
                         break;
                     case "find":
                         isBinaryResponse = false;
-//                        saida = this.find(conecxaoMySQL, saida);
-                        saida = this.find(conexaoMongoDB, saida);
+                        saida = this.findAll(conexaoMongoDB, saida);
                         break;
 //                    case "findById":
 //                        this.findById(conecxaoMySQL, request, response, saida, isBinaryResponse);
 //                        break;
                     case "streamVideo":
-//                        this.streamVideo(request, response, conecxaoMySQL, saida, isBinaryResponse);
                         this.streamVideo(conexaoMongoDB, request, response, saida, isBinaryResponse);
                         break;
                     case "delete":
                         isBinaryResponse = false;
-//                        this.delete(request, response, conecxaoMySQL);
                         this.delete(conexaoMongoDB, request, response);
                     default:
                         break;
@@ -114,9 +103,6 @@ public class ServletVideo extends HttpServlet {
             if (conecxaoMySQL != null) {
                 conecxaoMySQL.rollback();
             }
-//            if (conexaoMongoDB != null) {
-//                conexaoMongoDB.rollback();
-//            }
             throw ex;
         } finally {
             if (conexaoMongoDB != null) {
@@ -164,8 +150,10 @@ public class ServletVideo extends HttpServlet {
         return isBinaryResponse;
     }
     
-    private Map find(com.mongodb.client.MongoDatabase database, Map saida) throws Exception {
-        ArrayList<IdVideoBson> lista = mogodbVideoService.find(database);
+    private Map findAll(com.mongodb.client.MongoDatabase database, Map saida) throws Exception {
+        ArrayList<VideoBson2> lista = mogodbVideoService.findAll(database);
+//        String response = Api.requestGET();
+//        ArrayList<SelectVideo> lista = JsonToListGson.convert(response);
 
         saida.put("record", lista);
         saida.put("total", lista.size());
@@ -176,9 +164,9 @@ public class ServletVideo extends HttpServlet {
         if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             throw new RuntimeException("id do video nao informado");
-        }
-        long idVideo = Long.parseLong(request.getParameter("id"));
-        mogodbVideoService.delete(database, idVideo);
+        }        
+//        Api.requestDELETE(Integer.parseInt(request.getParameter("id")));        
+        mogodbVideoService.delete(database, Long.parseLong(request.getParameter("id")));
     }
     
     private void insert(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, Exception {
@@ -189,89 +177,86 @@ public class ServletVideo extends HttpServlet {
         }
         InputStream conteudo = request.getPart("video").getInputStream();
         byte[] videoBytes = conteudo.readAllBytes();
-        
-        Video video = new Video(videoBytes);
-        IdVideo idVideo = new IdVideo();
-        idVideo.setName("---");
-        idVideo.setDateTime(new java.sql.Timestamp(System.currentTimeMillis()));
-        idVideo.setLength(videoBytes.length);
 
-        MongoCollection<Document> counters = database.getCollection("counters");
-        SequenceGenerator seqGen = new SequenceGenerator(counters);
-        IdVideoBson idVideoBson = new IdVideoBson(seqGen, idVideo.getName(),
-                idVideo.getDateTime().toString(), idVideo.getLength()
+        SequenceGenerator seqGen = new SequenceGenerator(database.getCollection("counters"));
+        VideoBson2 videoBson2 = new VideoBson2(
+                seqGen,
+                "XXX",
+                videoBytes.length,
+                videoBytes,
+                ""
         );
-        mogodbVideoService.insert(database, idVideoBson, videoBytes);
+        mogodbVideoService.insert(database, videoBson2);
     }
     
     
     
     
 
-    private boolean streamVideo(HttpServletRequest request, HttpServletResponse response, Connection conecxaoMySQL, Map saida, boolean isBinaryResponse) throws IOException {
-        if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
-            isBinaryResponse = false;
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            throw new RuntimeException("id do video nao informado");
-        }
-        response.setContentType("video/mp4");
-        long idVideo = Long.parseLong(request.getParameter("id"));
+//    private boolean streamVideo(HttpServletRequest request, HttpServletResponse response, Connection conecxaoMySQL, Map saida, boolean isBinaryResponse) throws IOException {
+//        if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
+//            isBinaryResponse = false;
+//            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+//            throw new RuntimeException("id do video nao informado");
+//        }
+//        response.setContentType("video/mp4");
+//        long idVideo = Long.parseLong(request.getParameter("id"));
+//
+//        try {
+//            Video video = videoService.streamVideo(conecxaoMySQL, idVideo);
+//            response.setContentLength(video.getContentBytes().length);
+//            response.setContentLength(video.getContentBytes().length);
+//
+//            try (OutputStream out = response.getOutputStream()) {
+//                out.write(video.getContentBytes());
+//                out.flush();
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            try {
+//                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+//                response.getWriter().write("Erro interno ao enviar o vídeo.");
+//            } catch (IOException ignored) {
+//            }
+//        }
+//        return isBinaryResponse;
+//    }
 
-        try {
-            Video video = videoService.streamVideo(conecxaoMySQL, idVideo);
-            response.setContentLength(video.getContentBytes().length);
-            response.setContentLength(video.getContentBytes().length);
-
-            try (OutputStream out = response.getOutputStream()) {
-                out.write(video.getContentBytes());
-                out.flush();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            try {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("Erro interno ao enviar o vídeo.");
-            } catch (IOException ignored) {
-            }
-        }
-        return isBinaryResponse;
-    }
-
-    private void delete(HttpServletRequest request, HttpServletResponse response, Connection conecxaoMySQL) throws SQLException {
-        if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            throw new RuntimeException("id do video nao informado");
-        }
-        long idVideo = Long.parseLong(request.getParameter("id"));
-        videoService.delete(conecxaoMySQL, idVideo);
-    }
+//    private void delete(HttpServletRequest request, HttpServletResponse response, Connection conecxaoMySQL) throws SQLException {
+//        if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
+//            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+//            throw new RuntimeException("id do video nao informado");
+//        }
+//        long idVideo = Long.parseLong(request.getParameter("id"));
+//        videoService.delete(conecxaoMySQL, idVideo);
+//    }
     
-    private void insert(Connection conecxaoMySQL, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, SQLException {
-        Part filePart = request.getPart("video");
-        if (filePart == null || filePart.getSize() == 0) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            throw new RuntimeException("Nenhum vídeo enviado.");
-        }
-        InputStream conteudo = request.getPart("video").getInputStream();
-        byte[] videoBytes = conteudo.readAllBytes();
-        
-        Video video = new Video(videoBytes);
-        IdVideo idVideo = new IdVideo();
-        idVideo.setName("---");
-        idVideo.setDateTime(new java.sql.Timestamp(System.currentTimeMillis()));
-        idVideo.setLength(videoBytes.length);
+//    private void insert(Connection conecxaoMySQL, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, SQLException {
+//        Part filePart = request.getPart("video");
+//        if (filePart == null || filePart.getSize() == 0) {
+//            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+//            throw new RuntimeException("Nenhum vídeo enviado.");
+//        }
+//        InputStream conteudo = request.getPart("video").getInputStream();
+//        byte[] videoBytes = conteudo.readAllBytes();
+//        
+//        Video video = new Video(videoBytes);
+//        IdVideo idVideo = new IdVideo();
+//        idVideo.setName("---");
+//        idVideo.setDateTime(new java.sql.Timestamp(System.currentTimeMillis()));
+//        idVideo.setLength(videoBytes.length);
+//
+//        VideoDao.insert(conecxaoMySQL, video, idVideo);
+//    }
 
-        VideoDao.insert(conecxaoMySQL, video, idVideo);
-    }
-
-    private Map find(Connection conecxaoMySQL, Map saida) throws SQLException {
-        ArrayList<IdVideo> lista = videoService.find(conecxaoMySQL);
-
-        saida.put("record", lista);
-        saida.put("total", lista.size());
-        return saida;
-    }
+//    private Map find(Connection conecxaoMySQL, Map saida) throws SQLException {
+//        ArrayList<IdVideo> lista = videoService.find(conecxaoMySQL);
+//
+//        saida.put("record", lista);
+//        saida.put("total", lista.size());
+//        return saida;
+//    }
 
 //    private void findById(Connection conzzecxaoMySQL, HttpServletRequest request, HttpServletResponse response, Map saida, boolean isBinaryResponse) throws SQLException, IOException, InterruptedException {
     //    if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {

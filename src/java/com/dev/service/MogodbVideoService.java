@@ -1,11 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.dev.service;
 
-import com.dev.documentBson.IdVideoBson;
 import com.dev.documentBson.VideoBson;
+import com.dev.documentBson.VideoBson2;
 import com.mongodb.client.MongoDatabase;
 import java.util.ArrayList;
 
@@ -17,12 +13,12 @@ import java.util.ArrayList;
  */
 public interface MogodbVideoService {
     
-    ArrayList<IdVideoBson> find(MongoDatabase database) throws Exception;
+    ArrayList<VideoBson2> findAll(MongoDatabase database) throws Exception;
     
-    void insert(MongoDatabase database, IdVideoBson idVideoBson, byte[] videoBytes) throws Exception;
-    
-    void delete(MongoDatabase database, long idVideo);
+    void delete(MongoDatabase database, long idVideo) throws Exception;
 
-    public VideoBson streamVideo(MongoDatabase database, long idVideo);
+    VideoBson streamVideo(MongoDatabase database, long idVideo) throws Exception;
+
+    void insert(MongoDatabase database, VideoBson2 videoBson2) throws Exception;
     
 }

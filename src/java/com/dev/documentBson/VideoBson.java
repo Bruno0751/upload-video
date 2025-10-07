@@ -7,7 +7,7 @@ import org.bson.types.ObjectId;
 /**
  *
  * @author Bruno Gressler da Silveira
- * @since 21/07/2018
+ * @since 28/09/2018
  * @version 1
  */
 public class VideoBson {
