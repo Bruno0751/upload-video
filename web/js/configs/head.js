@@ -1,7 +1,6 @@
 //const timestamp = Date.now();
 const timestamp = new Date().getTime();
 //const timestampSegundos = Math.floor(Date.now() / 1000);
-document.title = "Meu Sistema de Videos";
 
 const charset = document.createElement("meta");
 charset.setAttribute("charset", "UTF-8");

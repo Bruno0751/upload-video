@@ -1,11 +1,17 @@
-const jQury = document.createElement("script");
-const variables = document.createElement("script");
-const boostrap413 = document.createElement("script");
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
 
-jQury.setAttribute("src", "js/framework/jquery-3.7.1.js");
-boostrap413.setAttribute("src", "js/framework/bootstrap4-1-3.js");
-variables.setAttribute("src", "js/variables.js");
-
-document.head.appendChild(jQury);
-document.head.appendChild(boostrap413);
-document.head.appendChild(variables);
+(async () => {
+  try {
+    await loadScript("js/variables.js");
+  } catch (e) {
+    console.error("Erro ao carregar scripts:", e);
+  }
+})();

@@ -25,6 +25,7 @@ async function findAll() {
                                             <th scope='col'>Name</th>\n\
                                             <th scope='col'>Data</th>\n\
                                             <th scope='col'>Length</th>\n\
+                                            <th scope='col'>Email</th>\n\\n\
                                             <th scope='col'>Deletar</th>\n\
                                             <th scope='col'>Play</th>\n\
                                         </tr>\n\
@@ -36,8 +37,9 @@ async function findAll() {
                                         <td>" + data.record[i].name + "</td>\n\
                                         <td>" + data.record[i].dateTime + "</td>\n\
                                         <td>" + data.record[i].length + "</td>\n\
+                                        <td>" + data.record[i].email + "</td>\n\
                                         <td><button type='button' onClick='delet(" + data.record[i].idVideo + ")' class='btn btn-danger'>Deletar</button></td>\n\
-                                        <td><button type='submit' id='openPopup' onClick='loadVideo(" + data.record[i].idVideo + ")' class='btn btn-primary'>Play</button></td>\n\
+                                        <td><button type='submit' data-id='" + data.record[i].idVideo + "' onClick='loadVideo(" + data.record[i].idVideo + ")' class='btn btn-primary openPopup'>Play</button></td>\n\
                                     </tr>\n";
                         }
                         tableHTML += "</tbody>\n\
@@ -47,13 +49,14 @@ async function findAll() {
                                             <th scope='col'>Name</th>\n\
                                             <th scope='col'>Data</th>\n\
                                             <th scope='col'>Length</th>\n\
+                                            <th scope='col'>Email</th>\n\\n\
                                             <th scope='col'>Deletar</th>\n\
                                             <th scope='col'>Play</th>\n\
                                         </tr>\n\
                                     </tfoot>\n\
                                 </table>";
                     } else {
-                        tableHTML = '<h2>Lista Vazia<h2>';
+                        tableHTML = '<h2>Lista Vazia</h2>';
                     }
                     div.innerHTML = tableHTML;
                 } else {

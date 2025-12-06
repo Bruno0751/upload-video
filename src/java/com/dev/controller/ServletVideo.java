@@ -1,10 +1,12 @@
 package com.dev.controller;
 
-import com.dev.dao.VideoDao;
+import com.dev.api.mongodb.Api;
+import com.dev.def.PropertiesReader;
 import com.google.gson.Gson;
 import com.dev.documentBson.SequenceGenerator;
 import com.dev.documentBson.VideoBson;
-import com.dev.documentBson.VideoBson2;
+import com.dev.documentBson.VideoBsonBig;
+import com.dev.dto.SelectVideo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,13 +22,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.Part;
-import com.dev.model.IdVideo;
-import com.dev.model.Video;
 import com.dev.persistence.ConexaoMongoDB;
-import com.dev.service.MogodbVideoService;
-import com.dev.service.MogodbVideoServiceImpl;
+import com.dev.service.VideoServiceImpl;
+import com.dev.util.JsonToListGson;
+import javax.servlet.annotation.MultipartConfig;
+import com.dev.service.VideoService;
+import java.util.Properties;
 
 /**
  *
@@ -35,12 +37,17 @@ import com.dev.service.MogodbVideoServiceImpl;
  * @version 1
  */
 @WebServlet(name = "ServletVideo", urlPatterns = {"/ServletVideo"})
+@MultipartConfig
+//@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB (tamanho em memória)
+//        maxFileSize = 1024 * 1024 * 100, // 100MB por arquivo
+//        maxRequestSize = 1024 * 1024 * 200 // 200MB total
+//)
 public class ServletVideo extends HttpServlet {
 
-    private MogodbVideoService mogodbVideoService;
+    private VideoService videoService;
 
     public ServletVideo() {
-        mogodbVideoService = new MogodbVideoServiceImpl();
+        videoService = new VideoServiceImpl();
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -56,28 +63,29 @@ public class ServletVideo extends HttpServlet {
         saida.put("status", "success");
         String json;
         try {
-            conecxaoMySQL = ConecxaoMySQL.conect();
-            conexaoMongoDB = ConexaoMongoDB.conect();
+            Properties properties = PropertiesReader.getProperties();
+            conecxaoMySQL = ConecxaoMySQL.conect(properties);
+            conexaoMongoDB = ConexaoMongoDB.conect(properties);
             try {
                 String opcao = request.getParameter("opcao");
                 switch (opcao) {
                     case "insert":
                         isBinaryResponse = false;
-                         this.insert(conexaoMongoDB, request, response);
+//                        this.inserir(conexaoMongoDB, request, response, properties);
+                        this.save(conexaoMongoDB, request, response, properties);
                         break;
                     case "find":
                         isBinaryResponse = false;
-                        saida = this.findAll(conexaoMongoDB, saida);
+                        saida = this.findAll(saida, properties);
+//                        saida = this.buscarVideos(conexaoMongoDB, saida);
                         break;
-//                    case "findById":
-//                        this.findById(conecxaoMySQL, request, response, saida, isBinaryResponse);
-//                        break;
                     case "streamVideo":
                         this.streamVideo(conexaoMongoDB, request, response, saida, isBinaryResponse);
                         break;
                     case "delete":
                         isBinaryResponse = false;
-                        this.delete(conexaoMongoDB, request, response);
+                        this.delete(request, response, properties);
+//                        this.deletarVideo(conexaoMongoDB, request, response);
                     default:
                         break;
 
@@ -120,7 +128,7 @@ public class ServletVideo extends HttpServlet {
             }
         }
     }
-    
+
     private boolean streamVideo(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Map saida, boolean isBinaryResponse) throws IOException, SQLException {
         if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
             isBinaryResponse = false;
@@ -131,7 +139,7 @@ public class ServletVideo extends HttpServlet {
         long idVideo = Long.parseLong(request.getParameter("id"));
 
         try {
-            VideoBson videoBson = mogodbVideoService.streamVideo(database, idVideo);
+            VideoBson videoBson = videoService.streamVideo(database, idVideo);
             response.setContentLength(videoBson.getContent().length);
 
             try (OutputStream out = response.getOutputStream()) {
@@ -150,28 +158,77 @@ public class ServletVideo extends HttpServlet {
         return isBinaryResponse;
     }
     
-    private Map findAll(com.mongodb.client.MongoDatabase database, Map saida) throws Exception {
-        ArrayList<VideoBson2> lista = mogodbVideoService.findAll(database);
-//        String response = Api.requestGET();
-//        ArrayList<SelectVideo> lista = JsonToListGson.convert(response);
-
+    private Map findAll(Map saida, Properties properties) throws Exception {
+        Api api = new Api(properties);
+        String response = api.requestGET();
+        ArrayList<SelectVideo> lista = JsonToListGson.convert(response);
         saida.put("record", lista);
         saida.put("total", lista.size());
         return saida;
     }
     
-    private void delete(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private void delete(HttpServletRequest request, HttpServletResponse response, Properties properties) throws Exception {
         if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             throw new RuntimeException("id do video nao informado");
-        }        
-//        Api.requestDELETE(Integer.parseInt(request.getParameter("id")));        
-        mogodbVideoService.delete(database, Long.parseLong(request.getParameter("id")));
+        }
+        Api api = new Api(properties);
+        api.requestDELETE(Long.parseLong(request.getParameter("id")));
+    }
+
+    private void save(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Properties properties) throws IOException, ServletException, Exception {
+        Part filePart = request.getPart("video");
+        if (request.getPart("video") == null || filePart.getSize() == 0) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            throw new RuntimeException("Nenhum vídeo enviado.");
+        }
+        InputStream conteudo = request.getPart("video").getInputStream();
+        byte[] videoBytes = conteudo.readAllBytes();
+        SequenceGenerator seqGen = new SequenceGenerator(database.getCollection("counters"));
+        VideoBson videoBson = new VideoBson(
+                seqGen,
+                "XXX",
+                videoBytes.length,
+                videoBytes,
+                "teste@teste.com.br"
+        );
+        Api api = new Api(properties);
+        api.saveFile(videoBson);
     }
     
-    private void insert(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, Exception {
+    /**
+     * 
+     * @deprecated 
+     * @see use methos findAll(Map map) 
+     */
+    private Map buscarVideos(com.mongodb.client.MongoDatabase database, Map saida) throws Exception {
+        ArrayList<VideoBson> lista = videoService.buscarVideos(database);
+        saida.put("record", lista);
+        saida.put("total", lista.size());
+        return saida;
+    }
+
+    /**
+     * 
+     * @deprecated 
+     * @see use methos delete(Map map, Properties properties) 
+     */
+    private void deletarVideo(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            throw new RuntimeException("id do video nao informado");
+        }
+        videoService.deletarVideo(database, Long.parseLong(request.getParameter("id")));
+    }
+
+    /**
+     * 
+     * @deprecated 
+     * @see use methos insert(Map map, Properties properties) 
+     */
+    private void inserir(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Properties properties) throws IOException, ServletException, Exception {
         Part filePart = request.getPart("video");
-        if (filePart == null || filePart.getSize() == 0) {
+        if (request.getPart("video") == null || filePart.getSize() == 0) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             throw new RuntimeException("Nenhum vídeo enviado.");
         }
@@ -179,19 +236,19 @@ public class ServletVideo extends HttpServlet {
         byte[] videoBytes = conteudo.readAllBytes();
 
         SequenceGenerator seqGen = new SequenceGenerator(database.getCollection("counters"));
-        VideoBson2 videoBson2 = new VideoBson2(
+        VideoBson videoBson = new VideoBson(
                 seqGen,
                 "XXX",
                 videoBytes.length,
                 videoBytes,
-                ""
+                "teste@teste.com.br"
         );
-        mogodbVideoService.insert(database, videoBson2);
+        videoService.inserir(database, videoBson);
+//        VideoBsonBig videoBsonBig = new VideoBsonBig(
+//                conteudo
+//        );
+//        videoService.inserirBig(videoBsonBig);
     }
-    
-    
-    
-    
 
 //    private boolean streamVideo(HttpServletRequest request, HttpServletResponse response, Connection conecxaoMySQL, Map saida, boolean isBinaryResponse) throws IOException {
 //        if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
@@ -222,59 +279,7 @@ public class ServletVideo extends HttpServlet {
 //        }
 //        return isBinaryResponse;
 //    }
-
-//    private void delete(HttpServletRequest request, HttpServletResponse response, Connection conecxaoMySQL) throws SQLException {
-//        if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
-//            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-//            throw new RuntimeException("id do video nao informado");
-//        }
-//        long idVideo = Long.parseLong(request.getParameter("id"));
-//        videoService.delete(conecxaoMySQL, idVideo);
-//    }
     
-//    private void insert(Connection conecxaoMySQL, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, SQLException {
-//        Part filePart = request.getPart("video");
-//        if (filePart == null || filePart.getSize() == 0) {
-//            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-//            throw new RuntimeException("Nenhum vídeo enviado.");
-//        }
-//        InputStream conteudo = request.getPart("video").getInputStream();
-//        byte[] videoBytes = conteudo.readAllBytes();
-//        
-//        Video video = new Video(videoBytes);
-//        IdVideo idVideo = new IdVideo();
-//        idVideo.setName("---");
-//        idVideo.setDateTime(new java.sql.Timestamp(System.currentTimeMillis()));
-//        idVideo.setLength(videoBytes.length);
-//
-//        VideoDao.insert(conecxaoMySQL, video, idVideo);
-//    }
-
-//    private Map find(Connection conecxaoMySQL, Map saida) throws SQLException {
-//        ArrayList<IdVideo> lista = videoService.find(conecxaoMySQL);
-//
-//        saida.put("record", lista);
-//        saida.put("total", lista.size());
-//        return saida;
-//    }
-
-//    private void findById(Connection conzzecxaoMySQL, HttpServletRequest request, HttpServletResponse response, Map saida, boolean isBinaryResponse) throws SQLException, IOException, InterruptedException {
-    //    if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
-    //        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-    //        System.out.println("step de  erro id");
-    //        throw new RuntimeException("id vazia");
-    //    };
-    //    int idVideo = Integer.parseInt(request.getParameter("id"));
-    //    Video video = VideoDao.findById(conecxaoMySQL, idVideo);
-    //    File tempFile = VideoDao.salvarVideoTemporario(video);
-    //    if (Desktop.isDesktopSupported()) {
-    //        Desktop.getDesktop().open(tempFile);
-    //    } else {
-    //        System.out.println("Desktop não suportado neste sistema.");
-    //    };
-//        Thread.sleep(5000); // Espera 5 segundos (ajustável)
-//        tempFile.delete();;
-//    }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

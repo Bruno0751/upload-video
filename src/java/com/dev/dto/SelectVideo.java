@@ -13,11 +13,11 @@ public class SelectVideo {
     private String name;
     private String dateTime;
     private long length;
+    private String email;
 
     @Override
     public String toString() {
-        return "SelectVideo{" + "id=" + id + ", idVideo=" + idVideo + ", name=" + name + ", dateTime=" + dateTime + ", length=" + length + '}';
-    }  
-    
+        return "SelectVideo{" + "id=" + id + ", idVideo=" + idVideo + ", name=" + name + ", dateTime=" + dateTime + ", length=" + length + ", email=" + email + '}';
+    }
     
 }

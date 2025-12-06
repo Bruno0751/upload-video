@@ -28,7 +28,8 @@ function insert() {
             }
         },
         error: function (xhr, status, error) {
-            console.error("Erro ao enviar vídeo:", error);
+            console.log(error);
+            console.error("Error", error);
             alert("Erro ao enviar vídeo.");
         },
         complete: function () {

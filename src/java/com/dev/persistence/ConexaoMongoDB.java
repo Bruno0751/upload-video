@@ -1,9 +1,9 @@
 package com.dev.persistence;
 
-import com.dev.def.Constants;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import java.util.Properties;
 import javax.swing.JOptionPane;
 import org.bson.Document;
 
@@ -15,17 +15,15 @@ import org.bson.Document;
  */
 public final class ConexaoMongoDB {
     
-    private static final String DB = "db_upload_video";
     private static com.mongodb.client.MongoCollection<org.bson.Document> collection;
     private static com.mongodb.MongoClient mongoClient = null;
     
-    
-    public static MongoDatabase conect() throws Exception {
+    public static MongoDatabase conect(Properties properties) throws Exception {
         MongoDatabase database = null;
         try {
-            MongoClientURI mongoClientURI = new MongoClientURI(Constants.URL_MONGODB);
+            MongoClientURI mongoClientURI = new MongoClientURI(properties.getProperty("MONGODB_URL"));
             mongoClient = new com.mongodb.MongoClient(mongoClientURI);
-            database = mongoClient.getDatabase(ConexaoMongoDB.DB);
+            database = mongoClient.getDatabase(properties.getProperty("MONGODB_DB"));
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "", "Erro de conexao", JOptionPane.ERROR_MESSAGE);
             throw new Exception("Erro de conexao");
