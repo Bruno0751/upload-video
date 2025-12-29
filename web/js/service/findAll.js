@@ -1,5 +1,5 @@
 async function findAll() {
-    fetch(`ServletVideo?opcao=find`, {
+    fetch(`${servlet}find`, {
         method: "GET"
     })
             .then(response => {
@@ -38,7 +38,7 @@ async function findAll() {
                                         <td>" + data.record[i].dateTime + "</td>\n\
                                         <td>" + data.record[i].length + "</td>\n\
                                         <td>" + data.record[i].email + "</td>\n\
-                                        <td><button type='button' onClick='delet(" + data.record[i].idVideo + ")' class='btn btn-danger'>Deletar</button></td>\n\
+                                        <td><button type='button' onClick=delet('" + data.record[i].id + "') class='btn btn-danger'>Deletar</button></td>\n\
                                         <td><button type='submit' data-id='" + data.record[i].idVideo + "' onClick='loadVideo(" + data.record[i].idVideo + ")' class='btn btn-primary openPopup'>Play</button></td>\n\
                                     </tr>\n";
                         }

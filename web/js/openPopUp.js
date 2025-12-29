@@ -1,7 +1,4 @@
-// openPopUp.js
 $(document).ready(function () {
-
-    // EVENTO: abrir popup com o ID do vídeo
     $(document).on("click", ".openPopup", function () {
         const videoId = $(this).data("id");
         openVideoPopup(videoId);
@@ -14,9 +11,6 @@ $(document).ready(function () {
         }
     });
 });
-
-// ===== FUNÇÃO: abrir o popup com vídeo =====
-
 function openVideoPopup(videoId) {
     const player = document.getElementById("videoPlayer");
 
@@ -26,7 +20,7 @@ function openVideoPopup(videoId) {
     player.load();
 
     // 2. gerar URL para o servlet
-    const videoURL = `ServletVideo?opcao=play&id=${videoId}`;
+    const videoURL = `${servlet}=play&id=${videoId}`;
 
     // 3. abrir popup APENAS quando o vídeo tiver carregado
     player.onloadeddata = () => {
@@ -36,15 +30,10 @@ function openVideoPopup(videoId) {
     // 4. carregar vídeo
     player.src = videoURL;
 }
-
-// ===== FUNÇÃO: fechar o popup e resetar o player =====
-
 function closeVideoPopup() {
     const player = document.getElementById("videoPlayer");
-
     player.pause();
     player.removeAttribute("src");
     player.load();
-
     $("#popupOverlay").fadeOut();
 }
