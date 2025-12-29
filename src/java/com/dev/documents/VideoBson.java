@@ -1,11 +1,10 @@
-package com.dev.documentBson;
+package com.dev.documents;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.bson.types.Binary;
 
 /**
@@ -16,7 +15,6 @@ import org.bson.types.Binary;
  */
 public class VideoBson implements Serializable {
 
-    private String id;
     private Document documento;
     private Long idVideo;
     private String name;
@@ -34,27 +32,10 @@ public class VideoBson implements Serializable {
         this.length = length;
         this.content = content;
         this.email = email;
-        this.documento = new Document()
-                .append("id_video", idVideo)
-                .append("name", name)
-                .append("date_time", Date.from(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).atZone(ZoneId.of("America/Sao_Paulo")).toInstant()))
-                .append("length", length)
-                .append("content", content)
-                .append("email", email);
     }
 
     public VideoBson(byte[] content) {
         this.content = content;
-        this.documento = new Document()
-                .append("content", new Binary(this.content));
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public Document getDocumento() {
@@ -115,9 +96,7 @@ public class VideoBson implements Serializable {
 
     @Override
     public String toString() {
-        return "VideoBson{" + "id=" + id + ", documento=" + documento + ", idVideo=" + idVideo + ", name=" + name + ", dateTime=" + dateTime + ", length=" + length + ", content=" + content + ", email=" + email + '}';
+        return "VideoBson{" + "documento=" + documento + ", idVideo=" + idVideo + ", name=" + name + ", dateTime=" + dateTime + ", length=" + length + ", content=" + content + ", email=" + email + '}';
     }
-
-    
 
 }

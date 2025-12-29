@@ -1,6 +1,6 @@
 package com.dev.util;
 
-import com.dev.dto.SelectVideo;
+import com.dev.dto.ResponseFindAll;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
@@ -14,13 +14,10 @@ import java.util.ArrayList;
  */
 public class JsonToListGson {
     
-    public static ArrayList<SelectVideo> convert(String json) {
+    public static ArrayList<ResponseFindAll> convertFindAll(String json) {
         Gson gson = new Gson();
-
-        Type listType = new TypeToken<ArrayList<SelectVideo>>() {}.getType();
-        ArrayList<SelectVideo> lista = gson.fromJson(json, listType);
-
+        Type listType = new TypeToken<ArrayList<ResponseFindAll>>() {}.getType();
+        ArrayList<ResponseFindAll> lista = gson.fromJson(json, listType);
         return lista;
     }
-    
 }

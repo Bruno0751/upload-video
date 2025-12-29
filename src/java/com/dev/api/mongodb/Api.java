@@ -1,7 +1,8 @@
 package com.dev.api.mongodb;
 
 import com.dev.def.Constants;
-import com.dev.documentBson.VideoBson;
+import com.dev.documents.VideoBson;
+import com.dev.documents.VideoBsonBig;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +20,7 @@ import java.util.Properties;
  * @since 16/11/2025
  * @version 1
  */
-public class Api {
+public final class Api {
 
     private String apiKey;
     private String apiUser;
@@ -122,11 +123,11 @@ public class Api {
         return null;
     }
 
-    public String requestDELETE(Long idVideo) throws IOException {
+    public String requestDELETE(String id) throws IOException {
         HttpURLConnection connection = null;
         String response = null;
         try {
-            URL url = new URL("http://localhost:" + Constants.PORT + "/" + Constants.API_VIDEOS + "/" + idVideo);
+            URL url = new URL("http://localhost:" + Constants.PORT + "/" + Constants.API_VIDEOS + "/" + id);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("DELETE");
             connection.setDoOutput(Boolean.FALSE);
@@ -161,8 +162,9 @@ public class Api {
         return response;
     }
 
-    public void saveFile(VideoBson videoBson) throws IOException {
+    public void saveFile(VideoBsonBig videoBson) throws IOException {
         HttpURLConnection connection = null;
+        String response = null;
         String boundary = "----BOUNDARY-" + System.currentTimeMillis();
         try {
             URL url = new URL("http://localhost:" + Constants.PORT + "/" + Constants.API_VIDEOS + "/saveFile");

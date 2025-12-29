@@ -1,4 +1,4 @@
-package com.dev.documentBson;
+package com.dev.documents;
 
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;

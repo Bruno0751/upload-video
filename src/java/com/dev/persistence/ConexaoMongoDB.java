@@ -25,7 +25,7 @@ public final class ConexaoMongoDB {
             mongoClient = new com.mongodb.MongoClient(mongoClientURI);
             database = mongoClient.getDatabase(properties.getProperty("MONGODB_DB"));
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "", "Erro de conexao", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Erro de conexao", "Erro", JOptionPane.ERROR_MESSAGE);
             throw new Exception("Erro de conexao");
         }
         return database;

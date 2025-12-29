@@ -1,8 +1,7 @@
 package com.dev.dao;
 
-import com.dev.def.Constants;
-import com.dev.documentBson.VideoBson;
-import com.dev.documentBson.VideoBsonBig;
+import com.dev.documents.VideoBson;
+import com.dev.documents.VideoBsonBig;
 import com.dev.persistence.ConexaoMongoDB;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -26,27 +25,27 @@ import java.util.Properties;
  */
 public final class VideoMogoDaoDB {
 
-    public static void insertBig(VideoBsonBig videoBsonBig, Properties properties) throws Exception {
-        com.mongodb.client.MongoClient mongoClient = null;
-        try {
-            ConnectionString connString = new ConnectionString(properties.getProperty("MONGODB_DB"));
-            MongoClientSettings settings = MongoClientSettings.builder()
-                    .applyConnectionString(connString)
-                    .build();
-            mongoClient = MongoClients.create(settings);
-            MongoDatabase database = mongoClient.getDatabase("meu_banco");
-
-            GridFSBucket gridFSBucket = GridFSBuckets.create(database, "videos");
-            gridFSBucket.uploadFromStream("XXX", videoBsonBig.getContentBig());
-
-        } catch (Exception e) {
-            throw new Exception("Erro ao inserir vídeo no MongoDB: " + e.getMessage(), e);
-        } finally {
-            if (mongoClient != null) {
-                mongoClient.close();
-            }
-        }
-    }
+//    public static void insertBig(VideoBsonBig videoBsonBig, Properties properties) throws Exception {
+//        com.mongodb.client.MongoClient mongoClient = null;
+//        try {
+//            ConnectionString connString = new ConnectionString(properties.getProperty("MONGODB_DB"));
+//            MongoClientSettings settings = MongoClientSettings.builder()
+//                    .applyConnectionString(connString)
+//                    .build();
+//            mongoClient = MongoClients.create(settings);
+//            MongoDatabase database = mongoClient.getDatabase("meu_banco");
+//
+//            GridFSBucket gridFSBucket = GridFSBuckets.create(database, "videos");
+//            gridFSBucket.uploadFromStream("XXX", videoBsonBig.getContentBig());
+//
+//        } catch (Exception e) {
+//            throw new Exception("Erro ao inserir vídeo no MongoDB: " + e.getMessage(), e);
+//        } finally {
+//            if (mongoClient != null) {
+//                mongoClient.close();
+//            }
+//        }
+//    }
 
     public static void inserir(MongoDatabase database, VideoBson videoBson) throws Exception {
         try {
@@ -99,7 +98,6 @@ public final class VideoMogoDaoDB {
     public static VideoBson streamVideo(MongoDatabase database, long idVideo) throws Exception {
         byte[] content = null;
         try {
-
             ConexaoMongoDB.setCollection(database.getCollection("videos"));
             Document doc = ConexaoMongoDB.getCollection().find(Filters.eq("id_video", idVideo)).first();
 

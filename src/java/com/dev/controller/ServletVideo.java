@@ -3,10 +3,10 @@ package com.dev.controller;
 import com.dev.api.mongodb.Api;
 import com.dev.def.PropertiesReader;
 import com.google.gson.Gson;
-import com.dev.documentBson.SequenceGenerator;
-import com.dev.documentBson.VideoBson;
-import com.dev.documentBson.VideoBsonBig;
-import com.dev.dto.SelectVideo;
+import com.dev.documents.SequenceGenerator;
+import com.dev.documents.VideoBson;
+import com.dev.documents.VideoBsonBig;
+import com.dev.dto.ResponseFindAll;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,6 +29,7 @@ import com.dev.util.JsonToListGson;
 import javax.servlet.annotation.MultipartConfig;
 import com.dev.service.VideoService;
 import java.util.Properties;
+
 
 /**
  *
@@ -59,8 +60,7 @@ public class ServletVideo extends HttpServlet {
         Connection conecxaoMySQL = null;
         com.mongodb.client.MongoDatabase conexaoMongoDB = null;
         Map saida = new HashMap();
-        boolean isBinaryResponse = true;
-        saida.put("status", "success");
+        Boolean isBinaryResponse = Boolean.FALSE;
         String json;
         try {
             Properties properties = PropertiesReader.getProperties();
@@ -70,26 +70,22 @@ public class ServletVideo extends HttpServlet {
                 String opcao = request.getParameter("opcao");
                 switch (opcao) {
                     case "insert":
-                        isBinaryResponse = false;
-//                        this.inserir(conexaoMongoDB, request, response, properties);
                         this.save(conexaoMongoDB, request, response, properties);
                         break;
                     case "find":
-                        isBinaryResponse = false;
                         saida = this.findAll(saida, properties);
-//                        saida = this.buscarVideos(conexaoMongoDB, saida);
                         break;
-                    case "streamVideo":
-                        this.streamVideo(conexaoMongoDB, request, response, saida, isBinaryResponse);
+                    case "play":
+                        isBinaryResponse = Boolean.TRUE;
+                        this.streamVideo(conexaoMongoDB, request, response, isBinaryResponse);
                         break;
                     case "delete":
-                        isBinaryResponse = false;
                         this.delete(request, response, properties);
-//                        this.deletarVideo(conexaoMongoDB, request, response);
                     default:
                         break;
 
                 }
+                saida.put("status", "success");
                 if (conecxaoMySQL != null) {
                     conecxaoMySQL.commit();
                 }
@@ -129,7 +125,7 @@ public class ServletVideo extends HttpServlet {
         }
     }
 
-    private boolean streamVideo(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Map saida, boolean isBinaryResponse) throws IOException, SQLException {
+    private boolean streamVideo(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, boolean isBinaryResponse) throws IOException, SQLException {
         if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
             isBinaryResponse = false;
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -161,7 +157,7 @@ public class ServletVideo extends HttpServlet {
     private Map findAll(Map saida, Properties properties) throws Exception {
         Api api = new Api(properties);
         String response = api.requestGET();
-        ArrayList<SelectVideo> lista = JsonToListGson.convert(response);
+        ArrayList<ResponseFindAll> lista = JsonToListGson.convertFindAll(response);
         saida.put("record", lista);
         saida.put("total", lista.size());
         return saida;
@@ -173,27 +169,25 @@ public class ServletVideo extends HttpServlet {
             throw new RuntimeException("id do video nao informado");
         }
         Api api = new Api(properties);
-        api.requestDELETE(Long.parseLong(request.getParameter("id")));
+        api.requestDELETE(request.getParameter("id"));
     }
 
     private void save(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Properties properties) throws IOException, ServletException, Exception {
-        Part filePart = request.getPart("video");
-        if (request.getPart("video") == null || filePart.getSize() == 0) {
+        if (request.getPart("video") == null || request.getPart("video").getSize() == 0) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             throw new RuntimeException("Nenhum vídeo enviado.");
         }
         InputStream conteudo = request.getPart("video").getInputStream();
-        byte[] videoBytes = conteudo.readAllBytes();
         SequenceGenerator seqGen = new SequenceGenerator(database.getCollection("counters"));
-        VideoBson videoBson = new VideoBson(
+        VideoBsonBig videoBsonBig = new VideoBsonBig(
                 seqGen,
                 "XXX",
-                videoBytes.length,
-                videoBytes,
-                "teste@teste.com.br"
+                conteudo.readAllBytes().length,
+                conteudo.readAllBytes(),
+                "brunogressler1@gmail.com"
         );
         Api api = new Api(properties);
-        api.saveFile(videoBson);
+        api.saveFile(videoBsonBig);
     }
     
     /**
@@ -249,36 +243,6 @@ public class ServletVideo extends HttpServlet {
 //        );
 //        videoService.inserirBig(videoBsonBig);
     }
-
-//    private boolean streamVideo(HttpServletRequest request, HttpServletResponse response, Connection conecxaoMySQL, Map saida, boolean isBinaryResponse) throws IOException {
-//        if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
-//            isBinaryResponse = false;
-//            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-//            throw new RuntimeException("id do video nao informado");
-//        }
-//        response.setContentType("video/mp4");
-//        long idVideo = Long.parseLong(request.getParameter("id"));
-//
-//        try {
-//            Video video = videoService.streamVideo(conecxaoMySQL, idVideo);
-//            response.setContentLength(video.getContentBytes().length);
-//            response.setContentLength(video.getContentBytes().length);
-//
-//            try (OutputStream out = response.getOutputStream()) {
-//                out.write(video.getContentBytes());
-//                out.flush();
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            try {
-//                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//                response.getWriter().write("Erro interno ao enviar o vídeo.");
-//            } catch (IOException ignored) {
-//            }
-//        }
-//        return isBinaryResponse;
-//    }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     @Override
