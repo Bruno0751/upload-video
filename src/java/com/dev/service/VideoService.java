@@ -15,7 +15,7 @@ public interface VideoService {
     
     ArrayList<VideoBson> buscarVideos(MongoDatabase database) throws Exception;
     
-    void deletarVideo(MongoDatabase database, long idVideo) throws Exception;
+    void deletarVideo(MongoDatabase database, String idVideo) throws Exception;
 
     VideoBson streamVideo(MongoDatabase database, long idVideo) throws Exception;
 

@@ -9,6 +9,7 @@ function insert() {
 
     const formData = new FormData();
     formData.append("video", file);
+    formData.append("videoName", file.name);
 
     $.ajax({
         url: "ServletVideo?opcao=insert",
@@ -28,7 +29,6 @@ function insert() {
             }
         },
         error: function (xhr, status, error) {
-            console.log(error);
             console.error("Error", error);
             alert("Erro ao enviar vídeo.");
         },

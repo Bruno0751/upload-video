@@ -28,6 +28,7 @@ import com.dev.service.VideoServiceImpl;
 import com.dev.util.JsonToListGson;
 import javax.servlet.annotation.MultipartConfig;
 import com.dev.service.VideoService;
+import java.util.Base64;
 import java.util.Properties;
 
 
@@ -70,17 +71,20 @@ public class ServletVideo extends HttpServlet {
                 String opcao = request.getParameter("opcao");
                 switch (opcao) {
                     case "insert":
-                        this.save(conexaoMongoDB, request, response, properties);
+                        this.inserir(conexaoMongoDB, request, response, properties);
+//                        this.save(conexaoMongoDB, request, response, properties);
                         break;
                     case "find":
-                        saida = this.findAll(saida, properties);
+                        saida = this.buscarVideos(conexaoMongoDB, saida);
+//                        saida = this.findAll(saida, properties);
                         break;
-                    case "play":
+                    case "streamVideo":
                         isBinaryResponse = Boolean.TRUE;
                         this.streamVideo(conexaoMongoDB, request, response, isBinaryResponse);
                         break;
                     case "delete":
-                        this.delete(request, response, properties);
+                        this.deletarVideo(conexaoMongoDB, request, response);
+//                        this.delete(request, response, properties);
                     default:
                         break;
 
@@ -192,7 +196,7 @@ public class ServletVideo extends HttpServlet {
     
     /**
      * 
-     * @deprecated 
+     * @deprecated buscarVideos
      * @see use methos findAll(Map map) 
      */
     private Map buscarVideos(com.mongodb.client.MongoDatabase database, Map saida) throws Exception {
@@ -204,7 +208,7 @@ public class ServletVideo extends HttpServlet {
 
     /**
      * 
-     * @deprecated 
+     * @deprecated deletarVideo
      * @see use methos delete(Map map, Properties properties) 
      */
     private void deletarVideo(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -212,12 +216,12 @@ public class ServletVideo extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             throw new RuntimeException("id do video nao informado");
         }
-        videoService.deletarVideo(database, Long.parseLong(request.getParameter("id")));
+        videoService.deletarVideo(database, request.getParameter("id"));
     }
 
     /**
      * 
-     * @deprecated 
+     * @deprecated inserir
      * @see use methos insert(Map map, Properties properties) 
      */
     private void inserir(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Properties properties) throws IOException, ServletException, Exception {
@@ -228,20 +232,18 @@ public class ServletVideo extends HttpServlet {
         }
         InputStream conteudo = request.getPart("video").getInputStream();
         byte[] videoBytes = conteudo.readAllBytes();
+        String videoBase64 = Base64.getEncoder().encodeToString(videoBytes);
 
         SequenceGenerator seqGen = new SequenceGenerator(database.getCollection("counters"));
         VideoBson videoBson = new VideoBson(
                 seqGen,
-                "XXX",
+                filePart.getSubmittedFileName(),
                 videoBytes.length,
                 videoBytes,
+                videoBase64,
                 "teste@teste.com.br"
         );
         videoService.inserir(database, videoBson);
-//        VideoBsonBig videoBsonBig = new VideoBsonBig(
-//                conteudo
-//        );
-//        videoService.inserirBig(videoBsonBig);
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

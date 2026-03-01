@@ -16,11 +16,11 @@ public class VideoServiceImpl implements VideoService {
     
     @Override
     public ArrayList<VideoBson> buscarVideos(MongoDatabase database) throws Exception {
-        return (ArrayList<VideoBson>) VideoMogoDaoDB.findAll(database);
+        return (ArrayList<VideoBson>) VideoMogoDaoDB.buscarVideos(database);
     }
 
     @Override
-    public void deletarVideo(MongoDatabase database, long idVideo) throws Exception {
+    public void deletarVideo(MongoDatabase database, String idVideo) throws Exception {
         VideoMogoDaoDB.delete(database, idVideo);
     }
 
