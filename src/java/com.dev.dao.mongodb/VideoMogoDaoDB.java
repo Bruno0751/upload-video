@@ -1,21 +1,15 @@
 package com.dev.dao;
 
 import com.dev.documents.VideoBson;
-import com.dev.documents.VideoBsonBig;
 import com.dev.persistence.ConexaoMongoDB;
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClients;
 import org.bson.Document;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import org.bson.types.Binary;
-import com.mongodb.client.gridfs.GridFSBucket;
-import com.mongodb.client.gridfs.GridFSBuckets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -24,28 +18,6 @@ import java.util.Properties;
  * @version 1
  */
 public final class VideoMogoDaoDB {
-
-//    public static void insertBig(VideoBsonBig videoBsonBig, Properties properties) throws Exception {
-//        com.mongodb.client.MongoClient mongoClient = null;
-//        try {
-//            ConnectionString connString = new ConnectionString(properties.getProperty("MONGODB_DB"));
-//            MongoClientSettings settings = MongoClientSettings.builder()
-//                    .applyConnectionString(connString)
-//                    .build();
-//            mongoClient = MongoClients.create(settings);
-//            MongoDatabase database = mongoClient.getDatabase("meu_banco");
-//
-//            GridFSBucket gridFSBucket = GridFSBuckets.create(database, "videos");
-//            gridFSBucket.uploadFromStream("XXX", videoBsonBig.getContentBig());
-//
-//        } catch (Exception e) {
-//            throw new Exception("Erro ao inserir vídeo no MongoDB: " + e.getMessage(), e);
-//        } finally {
-//            if (mongoClient != null) {
-//                mongoClient.close();
-//            }
-//        }
-//    }
 
     public static void inserir(MongoDatabase database, VideoBson videoBson) throws Exception {
         try {
@@ -60,7 +32,7 @@ public final class VideoMogoDaoDB {
         }
     }
 
-    public static List<VideoBson> findAll(MongoDatabase database) throws Exception {
+    public static List<VideoBson> buscarVideos(MongoDatabase database) throws Exception {
         List<VideoBson> list = null;
         try {
             ConexaoMongoDB.setCollection(database.getCollection("videos"));
@@ -68,10 +40,11 @@ public final class VideoMogoDaoDB {
             list = new ArrayList<>();
             for (Document documento : resultado) {
                 VideoBson videoBson = new VideoBson();
-                videoBson.setIdVideo(documento.getLong("id_video"));
+                videoBson.setId(documento.getObjectId("_id").toHexString());
+                videoBson.setIdVideo(documento.getLong("idVideo"));
                 videoBson.setName(documento.getString("name"));
-                videoBson.setContent(documento.get("content", Binary.class).getData());
-                videoBson.setDateTime(documento.getDate("date_time"));
+//                videoBson.setContent(documento.get("content", Binary.class).getData());
+                videoBson.setDate(documento.getDate("date"));
                 videoBson.setLength(documento.getLong("length"));
                 videoBson.setEmail(documento.getString("email"));
 
@@ -79,19 +52,18 @@ public final class VideoMogoDaoDB {
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            throw new Exception("Error find");
+            throw new Exception("Error buscarVideos");
         }
         return list;
     }
 
-    public static void delete(MongoDatabase database, long idVideo) throws Exception {
+    public static void delete(MongoDatabase database, String id) throws Exception {
         try {
             ConexaoMongoDB.setCollection(database.getCollection("videos"));
-            ConexaoMongoDB.getCollection().deleteOne(new Document("id_video", idVideo));
+            ConexaoMongoDB.getCollection().deleteOne(new Document("_id", new ObjectId(id)));
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            throw new Exception("Erro ao inserir documentos");
-        } finally {
+            throw new Exception("Erro ao delete documentos");
         }
     }
 
@@ -99,7 +71,8 @@ public final class VideoMogoDaoDB {
         byte[] content = null;
         try {
             ConexaoMongoDB.setCollection(database.getCollection("videos"));
-            Document doc = ConexaoMongoDB.getCollection().find(Filters.eq("id_video", idVideo)).first();
+
+            Document doc = ConexaoMongoDB.getCollection().find(Filters.eq("idVideo", idVideo)).first();
 
             if (doc != null) {
                 Binary bin = doc.get("content", Binary.class);
@@ -108,7 +81,7 @@ public final class VideoMogoDaoDB {
             } else {
                 System.out.println("Nenhum vídeo encontrado com id " + idVideo);
             }
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             System.out.println(e.getMessage());
             throw new Exception("Erro ao inserir documentos");
         }
