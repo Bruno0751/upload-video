@@ -1,11 +1,10 @@
 package com.dev.controller;
 
-import com.dev.api.mongodb.Api;
+import com.dev.api.Api;
 import com.dev.def.PropertiesReader;
 import com.google.gson.Gson;
 import com.dev.documents.SequenceGenerator;
 import com.dev.documents.VideoBson;
-import com.dev.documents.VideoBsonBig;
 import com.dev.dto.ResponseFindAll;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,8 +28,8 @@ import com.dev.util.JsonToListGson;
 import javax.servlet.annotation.MultipartConfig;
 import com.dev.service.VideoService;
 import java.util.Base64;
+import java.util.List;
 import java.util.Properties;
-
 
 /**
  *
@@ -177,21 +176,26 @@ public class ServletVideo extends HttpServlet {
     }
 
     private void save(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Properties properties) throws IOException, ServletException, Exception {
-        if (request.getPart("video") == null || request.getPart("video").getSize() == 0) {
+        Part filePart = request.getPart("video");
+        if (request.getPart("video") == null || filePart.getSize() == 0) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             throw new RuntimeException("Nenhum vídeo enviado.");
         }
         InputStream conteudo = request.getPart("video").getInputStream();
+        byte[] videoBytes = conteudo.readAllBytes();
+        String videoBase64 = Base64.getEncoder().encodeToString(videoBytes);
+
         SequenceGenerator seqGen = new SequenceGenerator(database.getCollection("counters"));
-        VideoBsonBig videoBsonBig = new VideoBsonBig(
+        VideoBson videoBson = new VideoBson(
                 seqGen,
-                "XXX",
-                conteudo.readAllBytes().length,
-                conteudo.readAllBytes(),
-                "brunogressler1@gmail.com"
+                filePart.getSubmittedFileName(),
+                videoBytes.length,
+                videoBytes,
+                videoBase64,
+                "teste@teste.com.br"
         );
         Api api = new Api(properties);
-        api.saveFile(videoBsonBig);
+        api.saveFile(videoBson);
     }
     
     /**
@@ -200,7 +204,7 @@ public class ServletVideo extends HttpServlet {
      * @see use methos findAll(Map map) 
      */
     private Map buscarVideos(com.mongodb.client.MongoDatabase database, Map saida) throws Exception {
-        ArrayList<VideoBson> lista = videoService.buscarVideos(database);
+        List<VideoBson> lista = videoService.buscarVideos(database);
         saida.put("record", lista);
         saida.put("total", lista.size());
         return saida;

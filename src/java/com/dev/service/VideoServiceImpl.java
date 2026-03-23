@@ -1,10 +1,9 @@
 package com.dev.service;
 
-import com.dev.dao.VideoMogoDaoDB;
+import com.dev.dao.VideoDao;
 import com.dev.documents.VideoBson;
-import com.dev.documents.VideoBsonBig;
 import com.mongodb.client.MongoDatabase;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -15,28 +14,23 @@ import java.util.ArrayList;
 public class VideoServiceImpl implements VideoService {
     
     @Override
-    public ArrayList<VideoBson> buscarVideos(MongoDatabase database) throws Exception {
-        return (ArrayList<VideoBson>) VideoMogoDaoDB.buscarVideos(database);
+    public List<VideoBson> buscarVideos(MongoDatabase database) throws Exception {
+        return VideoDao.buscarVideos(database);
     }
 
     @Override
     public void deletarVideo(MongoDatabase database, String idVideo) throws Exception {
-        VideoMogoDaoDB.delete(database, idVideo);
+        VideoDao.delete(database, idVideo);
     }
 
     @Override
     public VideoBson streamVideo(MongoDatabase database, long idVideo) throws Exception {
-        return VideoMogoDaoDB.streamVideo(database, idVideo);
+        return VideoDao.streamVideo(database, idVideo);
     }
 
     @Override
     public void inserir(MongoDatabase database, VideoBson videoBson) throws Exception {
-        VideoMogoDaoDB.inserir(database, videoBson);
-    }
-
-    @Override
-    public void insertBig(VideoBsonBig videoBsonBig) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        VideoDao.inserir(database, videoBson);
     }
 
 }
