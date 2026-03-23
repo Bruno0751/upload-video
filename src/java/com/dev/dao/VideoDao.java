@@ -17,9 +17,9 @@ import org.bson.types.ObjectId;
  * @since 16/11/2025
  * @version 1
  */
-public final class VideoMogoDaoDB {
-
-    public static void inserir(MongoDatabase database, VideoBson videoBson) throws Exception {
+public class VideoDao {
+    
+     public static void inserir(MongoDatabase database, VideoBson videoBson) throws Exception {
         try {
             ConexaoMongoDB.setCollection(database.getCollection("videos"));
             ConexaoMongoDB.getCollection().insertOne(videoBson.getDocumento());
@@ -41,7 +41,7 @@ public final class VideoMogoDaoDB {
             for (Document documento : resultado) {
                 VideoBson videoBson = new VideoBson();
                 videoBson.setId(documento.getObjectId("_id").toHexString());
-                videoBson.setIdVideo(documento.getLong("idVideo"));
+                videoBson.setIdVideo(documento.getLong("id_video"));
                 videoBson.setName(documento.getString("name"));
 //                videoBson.setContent(documento.get("content", Binary.class).getData());
                 videoBson.setDate(documento.getDate("date"));
@@ -87,4 +87,5 @@ public final class VideoMogoDaoDB {
         }
         return new VideoBson(content);
     }
+    
 }

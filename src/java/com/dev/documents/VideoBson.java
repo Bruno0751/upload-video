@@ -24,6 +24,9 @@ public class VideoBson implements Serializable {
 
     public VideoBson() {
     }
+    
+    public VideoBson(byte[] content) {
+    }
 
     public VideoBson(SequenceGenerator seqGen, String name, long length, byte[] content, String base64, String email) {
         this.idVideo = seqGen.getNextSequence("id_videos");
@@ -33,7 +36,7 @@ public class VideoBson implements Serializable {
         this.content = content;
         this.base64 = base64;
         this.email = email;
-        this.documento = new Document("idVideo", this.idVideo)
+        this.documento = new Document("id_video", this.idVideo)
                 .append("name", this.name)
                 .append("date", this.date)
                 .append("length", this.length)
@@ -41,10 +44,6 @@ public class VideoBson implements Serializable {
                 .append("base64", this.base64)
                 .append("email", this.email)
                 ;
-    }
-
-    public VideoBson(byte[] content) {
-        this.content = content;
     }
 
     public Document getDocumento() {
@@ -103,6 +102,14 @@ public class VideoBson implements Serializable {
         this.content = content;
     }
 
+    public String getBase64() {
+        return base64;
+    }
+
+    public void setBase64(String base64) {
+        this.base64 = base64;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -113,7 +120,7 @@ public class VideoBson implements Serializable {
 
     @Override
     public String toString() {
-        return "VideoBson{" + "documento=" + documento + ", id=" + id + ", idVideo=" + idVideo + ", name=" + name + ", date=" + date + ", length=" + length + ", content=" + content + ", email=" + email + '}';
+        return "VideoBson{" + "documento=" + documento + ", id=" + id + ", idVideo=" + idVideo + ", name=" + name + ", date=" + date + ", length=" + length + ", content=" + content + ", base64=" + base64 + ", email=" + email + '}';
     }
 
 }

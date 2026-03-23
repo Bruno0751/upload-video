@@ -1,8 +1,7 @@
-package com.dev.api.mongodb;
+package com.dev.api;
 
 import com.dev.def.Constants;
 import com.dev.documents.VideoBson;
-import com.dev.documents.VideoBsonBig;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -162,7 +161,7 @@ public final class Api {
         return response;
     }
 
-    public void saveFile(VideoBsonBig videoBson) throws IOException {
+    public void saveFile(VideoBson videoBson) throws IOException {
         HttpURLConnection connection = null;
         String response = null;
         String boundary = "----BOUNDARY-" + System.currentTimeMillis();

@@ -1,69 +1,65 @@
 async function findAll() {
-    fetch(`${servlet}find`, {
-        method: "GET"
-    })
-            .then(response => {
-                if (response.status === 200) {
-                    if (response.headers.get("Content-Type").includes('application/json;charset=UTF-8')) {
-                        return response.json();
-                    }
-                } else {
-                    alert(response.status);
-                }
-                throw new Error("Tipo de resposta inesperado:");
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    let div = window.document.getElementById("table");
-                    let tableHTML = null;
-                    if (data.record.length > 0) {
-                        tableHTML = "<table class='table'>\n\
-                                    <thead>\n\
-                                        <tr>\n\
-                                            <th scope='col'>Id</th>\n\
-                                            <th scope='col'>Name</th>\n\
-                                            <th scope='col'>Data</th>\n\
-                                            <th scope='col'>Length</th>\n\
-                                            <th scope='col'>Email</th>\n\\n\
-                                            <th scope='col'>Deletar</th>\n\
-                                            <th scope='col'>Play</th>\n\
-                                        </tr>\n\
-                                    </thead>\n\
-                                <tbody>\n";
-                        for (let i = 0; i < data.record.length; i++) {
-                            tableHTML += "<tr>\n\
-                                        <td>" + data.record[i].idVideo + "</td>\n\
-                                        <td>" + data.record[i].name + "</td>\n\
-                                        <td>" + data.record[i].date + "</td>\n\
-                                        <td>" + data.record[i].length + "</td>\n\
-                                        <td>" + data.record[i].email + "</td>\n\
-                                        <td><button type='button' onClick=delet('" + data.record[i].id + "') class='btn btn-danger'>Deletar</button></td>\n\
-                                        <td><button type='submit' data-id='" + data.record[i].idVideo + "' onClick='loadVideo(" + data.record[i].idVideo + ")' class='btn btn-primary openPopup'>Play</button></td>\n\
-                                    </tr>";
-                        }
-                        tableHTML += "</tbody>\n\
-                                    <tfoot>\n\
-                                        <tr>\n\
-                                            <th scope='col'>Id</th>\n\
-                                            <th scope='col'>Name</th>\n\
-                                            <th scope='col'>Data</th>\n\
-                                            <th scope='col'>Length</th>\n\
-                                            <th scope='col'>Email</th>\n\\n\
-                                            <th scope='col'>Deletar</th>\n\
-                                            <th scope='col'>Play</th>\n\
-                                        </tr>\n\
-                                    </tfoot>\n\
-                                </table>";
-                    } else {
-                        tableHTML = '<h2>Lista Vazia</h2>';
-                    }
-                    div.innerHTML = tableHTML;
-                } else {
-                    alert('Hove algum erro');
-                }
-            })
-            .catch(erro => {
-                console.error("Erro:", erro);
-                alert(erro);
-            });
+    try {
+        const response = await fetch(`${servlet}find`);
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+        if (!response.headers.get("Content-Type")?.includes("application/json")) {
+            throw new Error("Resposta não é JSON");
+        }
+        const data = await response.json();
+        if (data.status !== "success") {
+            throw new Error("Erro no retorno");
+        }
+        console.log(data)
+        renderTable(data.record);
+    } catch (erro) {
+        console.error("Erro:", erro);
+        alert(erro);
+    }
+}
+function renderTable(records) {
+    const div = document.getElementById("table");
+    if (records.length === 0) {
+        div.innerHTML = "<h2>Lista Vazia</h2>";
+        return;
+    }
+    let table;
+    table = "<table class='table'>\n\
+        <thead>\n\
+                <tr>\n\
+                    <th scope='col'>Id</th>\n\
+                    <th scope='col'>Name</th>\n\
+                    <th scope='col'>Data</th>\n\
+                    <th scope='col'>Length</th>\n\
+                    <th scope='col'>Email</th>\n\
+                    <th scope='col'>Deletar</th>\n\
+                    <th scope='col'>Play</th>\n\
+                </tr>\n\
+        </thead>\n\
+        <tbody>";
+        for (let i = 0; i < records.length; i++) {
+            table += "<tr>\n\
+                <td>" + records[i].idVideo + "</td>\n\
+                <td>" + records[i].name + "</td>\n\
+                <td>" + records[i].date + "</td>\n\
+                <td>" + records[i].length + "</td>\n\
+                <td>" + records[i].email + "</td>\n\
+                <td><button type='button' onClick=delet('" + records[i].id + "') class='btn btn-danger'>Deletar</button></td>\n\
+                <td><button type='submit' data-id='" + records[i].idVideo + "' onClick='loadVideo(" + records[i].idVideo + ")' class='btn btn-primary openPopup'>Play</button></td>\n\
+            </tr>";
+        }
+        table += "</tbody><tfoot>\n\
+            <tr>\n\
+                <th scope='col'>Id</th>\n\
+                <th scope='col'>Name</th>\n\
+                <th scope='col'>Data</th>\n\
+                <th scope='col'>Length</th>\n\
+                <th scope='col'>Email</th>\n\
+                <th scope='col'>Deletar</th>\n\
+                <th scope='col'>Play</th>\n\
+            </tr>\n\
+        </tfoot>\n\
+    </table>";
+    div.innerHTML = table;
 }
