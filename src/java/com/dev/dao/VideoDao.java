@@ -43,8 +43,6 @@ public class VideoDao {
                 videoBson.setId(documento.getObjectId("_id").toHexString());
                 videoBson.setIdVideo(documento.getLong("id_video"));
                 videoBson.setName(documento.getString("name"));
-//                videoBson.setContent(documento.get("content", Binary.class).getData());
-                videoBson.setDate(documento.getDate("date"));
                 videoBson.setLength(documento.getLong("length"));
                 videoBson.setEmail(documento.getString("email"));
 
@@ -65,27 +63,5 @@ public class VideoDao {
             System.out.println(e.getMessage());
             throw new Exception("Erro ao delete documentos");
         }
-    }
-
-    public static VideoBson streamVideo(MongoDatabase database, long idVideo) throws Exception {
-        byte[] content = null;
-        try {
-            ConexaoMongoDB.setCollection(database.getCollection("videos"));
-
-            Document doc = ConexaoMongoDB.getCollection().find(Filters.eq("idVideo", idVideo)).first();
-
-            if (doc != null) {
-                Binary bin = doc.get("content", Binary.class);
-                content = bin.getData();
-
-            } else {
-                System.out.println("Nenhum vídeo encontrado com id " + idVideo);
-            }
-        } catch (NullPointerException e) {
-            System.out.println(e.getMessage());
-            throw new Exception("Erro ao inserir documentos");
-        }
-        return new VideoBson(content);
-    }
-    
+    }    
 }

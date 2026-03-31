@@ -22,15 +22,5 @@ public class VideoServiceImpl implements VideoService {
     public void deletarVideo(MongoDatabase database, String idVideo) throws Exception {
         VideoDao.delete(database, idVideo);
     }
-
-    @Override
-    public VideoBson streamVideo(MongoDatabase database, long idVideo) throws Exception {
-        return VideoDao.streamVideo(database, idVideo);
-    }
-
-    @Override
-    public void inserir(MongoDatabase database, VideoBson videoBson) throws Exception {
-        VideoDao.inserir(database, videoBson);
-    }
-
+    
 }

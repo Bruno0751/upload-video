@@ -8,7 +8,6 @@ import com.dev.documents.VideoBson;
 import com.dev.dto.ResponseFindAll;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -27,7 +26,6 @@ import com.dev.service.VideoServiceImpl;
 import com.dev.util.JsonToListGson;
 import javax.servlet.annotation.MultipartConfig;
 import com.dev.service.VideoService;
-import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 
@@ -70,20 +68,16 @@ public class ServletVideo extends HttpServlet {
                 String opcao = request.getParameter("opcao");
                 switch (opcao) {
                     case "insert":
-                        this.inserir(conexaoMongoDB, request, response, properties);
-//                        this.save(conexaoMongoDB, request, response, properties);
+//                        this.inserir(conexaoMongoDB, request, response, properties);
+                        this.save(conexaoMongoDB, request, response, properties);
                         break;
                     case "find":
-                        saida = this.buscarVideos(conexaoMongoDB, saida);
-//                        saida = this.findAll(saida, properties);
-                        break;
-                    case "streamVideo":
-                        isBinaryResponse = Boolean.TRUE;
-                        this.streamVideo(conexaoMongoDB, request, response, isBinaryResponse);
+//                        saida = this.buscarVideos(conexaoMongoDB, saida);
+                        saida = this.findAll(saida, properties);
                         break;
                     case "delete":
-                        this.deletarVideo(conexaoMongoDB, request, response);
-//                        this.delete(request, response, properties);
+//                        this.deletarVideo(conexaoMongoDB, request, response);
+                        this.delete(request, response, properties);
                     default:
                         break;
 
@@ -127,35 +121,6 @@ public class ServletVideo extends HttpServlet {
             }
         }
     }
-
-    private boolean streamVideo(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, boolean isBinaryResponse) throws IOException, SQLException {
-        if (request.getParameter("id") == null || request.getParameter("id").isEmpty()) {
-            isBinaryResponse = false;
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            throw new RuntimeException("id do video nao informado");
-        }
-        response.setContentType("video/mp4");
-        long idVideo = Long.parseLong(request.getParameter("id"));
-
-        try {
-            VideoBson videoBson = videoService.streamVideo(database, idVideo);
-            response.setContentLength(videoBson.getContent().length);
-
-            try (OutputStream out = response.getOutputStream()) {
-                out.write(videoBson.getContent());
-                out.flush();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            try {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("Erro interno ao enviar o vídeo.");
-            } catch (IOException ignored) {
-            }
-        }
-        return isBinaryResponse;
-    }
     
     private Map findAll(Map saida, Properties properties) throws Exception {
         Api api = new Api(properties);
@@ -175,33 +140,28 @@ public class ServletVideo extends HttpServlet {
         api.requestDELETE(request.getParameter("id"));
     }
 
-    private void save(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Properties properties) throws IOException, ServletException, Exception {
-        Part filePart = request.getPart("video");
-        if (request.getPart("video") == null || filePart.getSize() == 0) {
+    private void save(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Properties properties) throws IOException, ServletException, Exception {   
+        if (request.getPart("video") == null || request.getPart("video").getSize() == 0) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             throw new RuntimeException("Nenhum vídeo enviado.");
         }
-        InputStream conteudo = request.getPart("video").getInputStream();
-        byte[] videoBytes = conteudo.readAllBytes();
-        String videoBase64 = Base64.getEncoder().encodeToString(videoBytes);
-
-        SequenceGenerator seqGen = new SequenceGenerator(database.getCollection("counters"));
+        Part filePart = request.getPart("video");
+        InputStream file = filePart.getInputStream();
+        byte[] videoBytes = file.readAllBytes();
         VideoBson videoBson = new VideoBson(
-                seqGen,
-                filePart.getSubmittedFileName(),
+                new SequenceGenerator(database.getCollection("counters")),
+                request.getParameter("videoName"),
                 videoBytes.length,
-                videoBytes,
-                videoBase64,
                 "teste@teste.com.br"
         );
         Api api = new Api(properties);
-        api.saveFile(videoBson);
+        api.save(videoBson, file);
     }
     
     /**
      * 
      * @deprecated buscarVideos
-     * @see use methos findAll(Map map) 
+     * @see use methos findAll(Map map, Properties properties)
      */
     private Map buscarVideos(com.mongodb.client.MongoDatabase database, Map saida) throws Exception {
         List<VideoBson> lista = videoService.buscarVideos(database);
@@ -221,33 +181,6 @@ public class ServletVideo extends HttpServlet {
             throw new RuntimeException("id do video nao informado");
         }
         videoService.deletarVideo(database, request.getParameter("id"));
-    }
-
-    /**
-     * 
-     * @deprecated inserir
-     * @see use methos insert(Map map, Properties properties) 
-     */
-    private void inserir(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Properties properties) throws IOException, ServletException, Exception {
-        Part filePart = request.getPart("video");
-        if (request.getPart("video") == null || filePart.getSize() == 0) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            throw new RuntimeException("Nenhum vídeo enviado.");
-        }
-        InputStream conteudo = request.getPart("video").getInputStream();
-        byte[] videoBytes = conteudo.readAllBytes();
-        String videoBase64 = Base64.getEncoder().encodeToString(videoBytes);
-
-        SequenceGenerator seqGen = new SequenceGenerator(database.getCollection("counters"));
-        VideoBson videoBson = new VideoBson(
-                seqGen,
-                filePart.getSubmittedFileName(),
-                videoBytes.length,
-                videoBytes,
-                videoBase64,
-                "teste@teste.com.br"
-        );
-        videoService.inserir(database, videoBson);
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
