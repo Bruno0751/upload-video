@@ -3,11 +3,9 @@ package com.dev.controller;
 import com.dev.api.Api;
 import com.dev.def.PropertiesReader;
 import com.google.gson.Gson;
-import com.dev.documents.SequenceGenerator;
 import com.dev.documents.VideoBson;
 import com.dev.dto.ResponseFindAll;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,7 +18,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.http.Part;
 import com.dev.persistence.ConexaoMongoDB;
 import com.dev.service.VideoServiceImpl;
 import com.dev.util.JsonToListGson;
@@ -67,20 +64,13 @@ public class ServletVideo extends HttpServlet {
             try {
                 String opcao = request.getParameter("opcao");
                 switch (opcao) {
-                    case "insert":
-//                        this.inserir(conexaoMongoDB, request, response, properties);
-                        this.save(conexaoMongoDB, request, response, properties);
-                        break;
                     case "find":
-//                        saida = this.buscarVideos(conexaoMongoDB, saida);
                         saida = this.findAll(saida, properties);
                         break;
                     case "delete":
-//                        this.deletarVideo(conexaoMongoDB, request, response);
                         this.delete(request, response, properties);
                     default:
                         break;
-
                 }
                 saida.put("status", "success");
                 if (conecxaoMySQL != null) {
@@ -124,7 +114,7 @@ public class ServletVideo extends HttpServlet {
     
     private Map findAll(Map saida, Properties properties) throws Exception {
         Api api = new Api(properties);
-        String response = api.requestGET();
+        String response = api.findAll();
         ArrayList<ResponseFindAll> lista = JsonToListGson.convertFindAll(response);
         saida.put("record", lista);
         saida.put("total", lista.size());
@@ -137,25 +127,7 @@ public class ServletVideo extends HttpServlet {
             throw new RuntimeException("id do video nao informado");
         }
         Api api = new Api(properties);
-        api.requestDELETE(request.getParameter("id"));
-    }
-
-    private void save(com.mongodb.client.MongoDatabase database, HttpServletRequest request, HttpServletResponse response, Properties properties) throws IOException, ServletException, Exception {   
-        if (request.getPart("video") == null || request.getPart("video").getSize() == 0) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            throw new RuntimeException("Nenhum vídeo enviado.");
-        }
-        Part filePart = request.getPart("video");
-        InputStream file = filePart.getInputStream();
-        byte[] videoBytes = file.readAllBytes();
-        VideoBson videoBson = new VideoBson(
-                new SequenceGenerator(database.getCollection("counters")),
-                request.getParameter("videoName"),
-                videoBytes.length,
-                "teste@teste.com.br"
-        );
-        Api api = new Api(properties);
-        api.save(videoBson, file);
+        api.delete(request.getParameter("id"));
     }
     
     /**

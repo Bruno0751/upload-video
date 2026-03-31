@@ -11,11 +11,10 @@ async function findAll() {
         if (data.status !== "success") {
             throw new Error("Erro no retorno");
         }
-        console.log(data)
         renderTable(data.record);
-    } catch (erro) {
-        console.error("Erro:", erro);
-        alert(erro);
+    } catch (responseError) {
+        console.error("Erro: ", responseError);
+        alert("Erro ao buscar vídeos.");
     }
 }
 function renderTable(records) {
@@ -30,7 +29,6 @@ function renderTable(records) {
                 <tr>\n\
                     <th scope='col'>Id</th>\n\
                     <th scope='col'>Name</th>\n\
-                    <th scope='col'>Data</th>\n\
                     <th scope='col'>Length</th>\n\
                     <th scope='col'>Email</th>\n\
                     <th scope='col'>Deletar</th>\n\
@@ -42,18 +40,16 @@ function renderTable(records) {
             table += "<tr>\n\
                 <td>" + records[i].idVideo + "</td>\n\
                 <td>" + records[i].name + "</td>\n\
-                <td>" + records[i].date + "</td>\n\
                 <td>" + records[i].length + "</td>\n\
                 <td>" + records[i].email + "</td>\n\
                 <td><button type='button' onClick=delet('" + records[i].id + "') class='btn btn-danger'>Deletar</button></td>\n\
-                <td><button type='submit' data-id='" + records[i].idVideo + "' onClick='loadVideo(" + records[i].idVideo + ")' class='btn btn-primary openPopup'>Play</button></td>\n\
+                <td><button type='button' onClick=loadStream('" + records[i].id + "') class='btn btn-primary openPopup'>Play</button></td>\n\
             </tr>";
         }
         table += "</tbody><tfoot>\n\
             <tr>\n\
                 <th scope='col'>Id</th>\n\
                 <th scope='col'>Name</th>\n\
-                <th scope='col'>Data</th>\n\
                 <th scope='col'>Length</th>\n\
                 <th scope='col'>Email</th>\n\
                 <th scope='col'>Deletar</th>\n\

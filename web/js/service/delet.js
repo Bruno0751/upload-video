@@ -2,23 +2,23 @@ function delet(id) {
     $.ajax({
         url: `ServletVideo?opcao=delete&id=${id}`,
         type: "DELETE",
-        success: function (data, textStatus, xhr) {
+        success: function (response, xhr) {
             const contentType = xhr.getResponseHeader("Content-Type");
 
             if (contentType && contentType.includes("application/json")) {
-                if (data.status === "success") {
+                if (response.status === "success") {
                     alert("Succees");
                     window.location.reload();
                 } else {
-                    alert("Erro: " + data.msg);
+                    alert("Erro: " + response.msg);
                 }
             } else {
                 alert("Response not found");
             }
         },
-        error: function (xhr, status, error) {
-            console.error("Error:", error);
-            alert("Error");
+        error: function (responseError) {
+            console.error("Error:", responseError);
+            alert("Erro ao deletar vídeo.");
         },
         complete: function () {
         }

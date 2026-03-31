@@ -1,39 +1,38 @@
 function insert() {
     let input = $("#file")[0];
     let file = input.files[0];
-
     if (file === undefined) {
         alert('Video obrigatório');
         return;
     }
 
     const formData = new FormData();
-    formData.append("video", file);
-    formData.append("videoName", file.name);
-
+    const metadata = {
+        idVideo: 1,
+        name: file.name,
+        length: file.size,
+        email: "brunogressler1@gmail.com"
+    };
+    formData.append("file", file);
+    formData.append("metadata", new Blob(
+            [JSON.stringify(metadata)],
+            {type: "application/json"}
+    ));
     $.ajax({
-        url: "ServletVideo?opcao=insert",
+        url: "http://localhost:1010/v1/video",
         type: "POST",
         data: formData,
         processData: false, // impede que o jQuery tente processar o FormData
         contentType: false, // deixa o browser definir o cabeçalho Content-Type corretamente
-        success: function (data, textStatus, xhr) {
-            if (xhr.getResponseHeader("Content-Type").includes("application/json")) {
-                if (data.status === "success") {
-                    window.location.href = `${protocol}//${host}:${port}/${projectName}/loading.html`;
-                } else {
-                    alert("Erro: " + data.msg);
-                }
-            } else {
-                alert("Resposta inesperada do servidor.");
-            }
+        success: function (response) {
+            console.log(response);
+            //window.location.href = `${protocol}//${host}:${port}/${projectName}/loading.html`;
         },
-        error: function (xhr, status, error) {
-            console.error("Error", error);
+        error: function (responseError) {
+            console.error("Error: ", responseError);
             alert("Erro ao enviar vídeo.");
         },
         complete: function () {
-
         }
     });
 }
